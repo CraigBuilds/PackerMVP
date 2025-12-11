@@ -1,0 +1,17 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-qemu
+    username: packer
+    # password: "packer"
+    password: $6$pt3E4Yoh$zUGGuZBSwTRVscYgYcH6ia8buAErOatoReg43iIZFM5tqOKgnKJPVXiV9KlPhAPA0ueMjJag6Pw22FMmozCq4/
+  ssh:
+    install-server: true
+    allow-pw: true
+  storage:
+    layout:
+      name: direct
+  user-data:
+    disable_root: true
+    ssh_pwauth: true
