@@ -8,37 +8,43 @@ packer {
 }
 
 source "qemu" "ubuntu" {
+  # Ubuntu 22.04 live server ISO
   iso_url      = "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server-amd64.iso"
-  iso_checksum = "none"
+  iso_checksum = "none" # keep simple; add real checksum later if desired
 
   output_directory = "output"
   vm_name          = "ubuntu-qemu"
   format           = "qcow2"
 
   headless  = true
-  memory    = 1024
-  cpus      = 1
+  memory    = 2048
+  cpus      = 2
   disk_size = "10G"
 
+  # Serve autoinstall config via HTTP from ./http
   http_directory = "http"
 
+  # Wait briefly before typing into GRUB
   boot_wait = "5s"
+
+  # Use GRUB command line directly for a stable autoinstall setup
+  # Note: no 'quiet' flag, so you get verbose boot output.
   boot_command = [
-    "<esc><wait>",
-    "<esc><wait>",
-    "<f6><wait>",
-    "<esc><wait>",
-    " autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ debug console=ttyS0 --- <enter>"
+    "c", "<wait>",
+    "linux /casper/vmlinuz --- autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'", "<enter><wait>",
+    "initrd /casper/initrd", "<enter><wait>",
+    "boot", "<enter>"
   ]
 
+  # SSH communicator: just enough for Packer to know the install succeeded
   ssh_username = "packer"
   ssh_password = "packer"
   ssh_timeout  = "30m"
 
-  qemuargs = [
-    ["-serial", "stdio"]
-  ]
+  # Let the QEMU plugin manage networking and SSH port forwarding.
+  # No qemuargs overriding network.
 
+  # Clean shutdown when Packer is done
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
 }
 
