@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    qemu = {
+      source  = "github.com/hashicorp/qemu"
+      version = ">= 1.0.0"
+    }
+  }
+}
+
 source "qemu" "ubuntu" {
   iso_url      = "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server-amd64.iso"
   iso_checksum = "none"
@@ -19,7 +28,6 @@ source "qemu" "ubuntu" {
     "<esc><wait>",
     "<f6><wait>",
     "<esc><wait>",
-    # note the added debug + console=ttyS0 at the end:
     " autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ debug console=ttyS0 --- <enter>"
   ]
 
@@ -27,7 +35,6 @@ source "qemu" "ubuntu" {
   ssh_password = "packer"
   ssh_timeout  = "30m"
 
-  # NEW: forward guest serial to stdout; Packer will log this with PACKER_LOG=1
   qemuargs = [
     ["-serial", "stdio"]
   ]
