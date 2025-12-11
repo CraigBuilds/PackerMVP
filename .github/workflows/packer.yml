@@ -1,0 +1,34 @@
+name: packer-qemu
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      PACKER_LOG: "TRACE"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Packer init
+        run: packer init .
+
+      - name: Packer validate
+        run: packer validate packer.pkr.hcl
+
+      - name: Packer build
+        run: packer build packer.pkr.hcl
