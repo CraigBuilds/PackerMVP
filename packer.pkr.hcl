@@ -16,8 +16,8 @@ source "qemu" "ubuntu" {
   format           = "qcow2"
 
   headless  = true
-  memory    = 1024
-  cpus      = 1
+  memory    = 2048
+  cpus      = 2
   disk_size = "10G"
 
   http_directory = "http"
@@ -34,11 +34,6 @@ source "qemu" "ubuntu" {
   ssh_username = "packer"
   ssh_password = "packer"
   ssh_timeout  = "30m"
-
-  qemuargs = [
-    [ "-netdev", "user,id=net0,hostfwd=tcp::{{ .SSHHostPort }}-:22" ],
-    [ "-device", "virtio-net,netdev=net0" ]
-  ]
 
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
 }
