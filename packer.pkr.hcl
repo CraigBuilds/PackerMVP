@@ -11,8 +11,9 @@ source "qemu" "ubuntu_cloud" {
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
   iso_checksum = "none"
 
-  disk_image = true
-  format     = "qcow2"
+  disk_image       = true
+  format           = "qcow2"
+  disk_compression = true
 
   output_directory = "output"
   vm_name          = "ubuntu-cloud"
@@ -40,5 +41,9 @@ build {
 
   provisioner "shell" {
     script = "provision/provision.sh"
+  }
+
+  post-processor "compress" {
+    output = "output/ubuntu-cloud.tar.gz"
   }
 }
