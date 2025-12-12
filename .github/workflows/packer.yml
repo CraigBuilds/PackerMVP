@@ -53,32 +53,24 @@ jobs:
           path: build-output-desktop/craigs_vm_desktop
 
   convert-qemu:
-    name: Package QEMU VMs
+    name: Package QEMU VM
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download server base VM
-        uses: actions/download-artifact@v4
-        with:
-          name: server-base-vm
-          path: server-base
-
       - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
           name: desktop-vm
           path: desktop
 
-      - name: Package QEMU formats
+      - name: Package QEMU format
         run: |
           mkdir -p dist
-          cp server-base/craigs_vm_server dist/craigs_vm_server.qcow2
           cp desktop/craigs_vm_desktop dist/craigs_vm_desktop.qcow2
-          tar -czf dist/craigs_vm_server_qemu.tar.gz -C dist craigs_vm_server.qcow2
           tar -czf dist/craigs_vm_desktop_qemu.tar.gz -C dist craigs_vm_desktop.qcow2
 
-      - name: Upload QEMU VMs
+      - name: Upload QEMU VM
         uses: actions/upload-artifact@v4
         with:
           name: vm-qemu
@@ -90,12 +82,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download server base VM
-        uses: actions/download-artifact@v4
-        with:
-          name: server-base-vm
-          path: server-base
-
       - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
@@ -108,12 +94,10 @@ jobs:
       - name: Convert to VDI format
         run: |
           mkdir -p dist
-          qemu-img convert -f qcow2 -O vdi server-base/craigs_vm_server dist/craigs_vm_server_virtualbox.vdi
           qemu-img convert -f qcow2 -O vdi desktop/craigs_vm_desktop dist/craigs_vm_desktop_virtualbox.vdi
-          tar -czf dist/craigs_vm_server_virtualbox.tar.gz -C dist craigs_vm_server_virtualbox.vdi
           tar -czf dist/craigs_vm_desktop_virtualbox.tar.gz -C dist craigs_vm_desktop_virtualbox.vdi
 
-      - name: Upload VirtualBox VMs
+      - name: Upload VirtualBox VM
         uses: actions/upload-artifact@v4
         with:
           name: vm-virtualbox
@@ -125,12 +109,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download server base VM
-        uses: actions/download-artifact@v4
-        with:
-          name: server-base-vm
-          path: server-base
-
       - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
@@ -143,12 +121,10 @@ jobs:
       - name: Convert to VHDX format
         run: |
           mkdir -p dist
-          qemu-img convert -f qcow2 -O vhdx server-base/craigs_vm_server dist/craigs_vm_server_hyperv.vhdx
           qemu-img convert -f qcow2 -O vhdx desktop/craigs_vm_desktop dist/craigs_vm_desktop_hyperv.vhdx
-          tar -czf dist/craigs_vm_server_hyperv.tar.gz -C dist craigs_vm_server_hyperv.vhdx
           tar -czf dist/craigs_vm_desktop_hyperv.tar.gz -C dist craigs_vm_desktop_hyperv.vhdx
 
-      - name: Upload Hyper-V VMs
+      - name: Upload Hyper-V VM
         uses: actions/upload-artifact@v4
         with:
           name: vm-hyperv
@@ -160,12 +136,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download server base VM
-        uses: actions/download-artifact@v4
-        with:
-          name: server-base-vm
-          path: server-base
-
       - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
@@ -175,12 +145,10 @@ jobs:
       - name: Package for Proxmox (qcow2 format)
         run: |
           mkdir -p dist
-          cp server-base/craigs_vm_server dist/craigs_vm_server_proxmox.qcow2
           cp desktop/craigs_vm_desktop dist/craigs_vm_desktop_proxmox.qcow2
-          tar -czf dist/craigs_vm_server_proxmox.tar.gz -C dist craigs_vm_server_proxmox.qcow2
           tar -czf dist/craigs_vm_desktop_proxmox.tar.gz -C dist craigs_vm_desktop_proxmox.qcow2
 
-      - name: Upload Proxmox VMs
+      - name: Upload Proxmox VM
         uses: actions/upload-artifact@v4
         with:
           name: vm-proxmox
@@ -219,17 +187,10 @@ jobs:
           body: |
             # VM Images Release
             
-            This release contains virtual machine images built with Packer in a two-stage process:
+            This release contains desktop VM images built with Packer in a two-stage process.
             
-            ## Server Base Images (Stage 1)
-            Minimal server installation without desktop environment:
-            - **QEMU Server** (`craigs_vm_server_qemu.tar.gz`): QEMU/KVM qcow2 format
-            - **VirtualBox Server** (`craigs_vm_server_virtualbox.tar.gz`): VirtualBox VDI format
-            - **Hyper-V Server** (`craigs_vm_server_hyperv.tar.gz`): Microsoft Hyper-V VHDX format
-            - **Proxmox Server** (`craigs_vm_server_proxmox.tar.gz`): Proxmox qcow2 format
-            
-            ## Desktop Images (Stage 2)
-            Built from server base with XFCE desktop environment:
+            ## Desktop Images
+            Built from server base with XFCE desktop environment in multiple formats:
             - **QEMU Desktop** (`craigs_vm_desktop_qemu.tar.gz`): QEMU/KVM qcow2 format
             - **VirtualBox Desktop** (`craigs_vm_desktop_virtualbox.tar.gz`): VirtualBox VDI format
             - **Hyper-V Desktop** (`craigs_vm_desktop_hyperv.tar.gz`): Microsoft Hyper-V VHDX format
