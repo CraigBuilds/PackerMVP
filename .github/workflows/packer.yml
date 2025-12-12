@@ -22,23 +22,23 @@ jobs:
           version: "1.11.0"
 
       - name: Fix key permissions
-        run: chmod 600 keys/packer_ed25519
+        run: chmod 600 Packer/keys/packer_ed25519
 
       - name: Initialize and validate Packer (base)
         run: |
-          packer init packer-base.pkr.hcl
-          packer validate packer-base.pkr.hcl
+          packer init Packer/templates/packer-base.pkr.hcl
+          packer validate Packer/templates/packer-base.pkr.hcl
 
       - name: Build server base VM
-        run: packer build packer-base.pkr.hcl
+        run: packer build Packer/templates/packer-base.pkr.hcl
 
       - name: Initialize and validate Packer (desktop)
         run: |
-          packer init packer-desktop.pkr.hcl
-          packer validate packer-desktop.pkr.hcl
+          packer init Packer/templates/packer-desktop.pkr.hcl
+          packer validate Packer/templates/packer-desktop.pkr.hcl
 
       - name: Build desktop VM
-        run: packer build packer-desktop.pkr.hcl
+        run: packer build Packer/templates/packer-desktop.pkr.hcl
 
       - name: Upload server base VM artifact
         uses: actions/upload-artifact@v4

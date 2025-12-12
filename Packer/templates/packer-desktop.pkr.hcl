@@ -23,13 +23,13 @@ source "qemu" "desktop" {
   cpus   = 2
 
   cd_files = [
-    "cloud_init/user-data",
-    "cloud_init/meta-data",
+    "Packer/cloud_init/user-data",
+    "Packer/cloud_init/meta-data",
   ]
   cd_label = "cidata"
 
   ssh_username         = "packer"
-  ssh_private_key_file = "keys/packer_ed25519"
+  ssh_private_key_file = "Packer/keys/packer_ed25519"
   ssh_timeout          = "10m"
 
   shutdown_command = "sudo shutdown -P now"
@@ -40,6 +40,6 @@ build {
   sources = ["source.qemu.desktop"]
 
   provisioner "shell" {
-    script = "provision/provision-desktop.sh"
+    script = "Packer/provision/provision-desktop.sh"
   }
 }

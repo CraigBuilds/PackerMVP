@@ -15,10 +15,10 @@ A Packer configuration for building multiple VM formats from Ubuntu 22.04 cloud 
 
 VM images are built using a two-stage process from Packer configurations:
 
-### Stage 1: Server Base (`packer-base.pkr.hcl`)
+### Stage 1: Server Base (`Packer/templates/packer-base.pkr.hcl`)
 Minimal Ubuntu 22.04 server installation without desktop environment.
 
-### Stage 2: Desktop (`packer-desktop.pkr.hcl`)
+### Stage 2: Desktop (`Packer/templates/packer-desktop.pkr.hcl`)
 Derived from the server base image, adds XFCE desktop environment.
 
 Both stages produce:
@@ -33,16 +33,16 @@ Both stages produce:
 
 #### Build Server Base Only
 ```bash
-packer init packer-base.pkr.hcl
-packer build packer-base.pkr.hcl
+packer init Packer/templates/packer-base.pkr.hcl
+packer build Packer/templates/packer-base.pkr.hcl
 ```
 
 This builds the minimal server image to `build-output-base/craigs_vm_server`.
 
 #### Build Desktop (requires base to be built first)
 ```bash
-packer init packer-desktop.pkr.hcl
-packer build packer-desktop.pkr.hcl
+packer init Packer/templates/packer-desktop.pkr.hcl
+packer build Packer/templates/packer-desktop.pkr.hcl
 ```
 
 This builds the desktop image from the base to `build-output-desktop/craigs_vm_desktop`.
@@ -50,12 +50,12 @@ This builds the desktop image from the base to `build-output-desktop/craigs_vm_d
 #### Build Both Stages
 ```bash
 # Build base first
-packer init packer-base.pkr.hcl
-packer build packer-base.pkr.hcl
+packer init Packer/templates/packer-base.pkr.hcl
+packer build Packer/templates/packer-base.pkr.hcl
 
 # Then build desktop
-packer init packer-desktop.pkr.hcl
-packer build packer-desktop.pkr.hcl
+packer init Packer/templates/packer-desktop.pkr.hcl
+packer build Packer/templates/packer-desktop.pkr.hcl
 ```
 
 #### Legacy Single Build (deprecated)
@@ -83,7 +83,7 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 - **Local Login**: Username `packer`, password `packer` (change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
 - **Resources**: 2GB RAM, 2 CPUs
-- **SSH Public Key**: See `keys/packer_ed25519.pub`
+- **SSH Public Key**: See `Packer/keys/packer_ed25519.pub`
 
 ### Desktop Image
 Includes everything from Server Base, plus:
