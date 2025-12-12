@@ -40,7 +40,7 @@ jobs:
           path: packer.log
           if-no-files-found: warn
 
-      - run: set -euxo pipefail; pwd; echo "$GITHUB_WORKSPACE"; ls -lah; ls -lah output || true; find "$GITHUB_WORKSPACE" -maxdepth 6 -type f -name "*.tar.gz" -print
+      - run: set -euxo pipefail; pwd; echo "$GITHUB_WORKSPACE"; ls -lah; ls -lah dist || true; find "$GITHUB_WORKSPACE" -maxdepth 6 -type f -name "*.tar.gz" -print
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
@@ -51,4 +51,4 @@ jobs:
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: "${{ github.workspace }}/output/*.tar.gz"
+          artifacts: "dist/*.tar.gz"
