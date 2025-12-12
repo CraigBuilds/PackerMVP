@@ -22,8 +22,8 @@ source "qemu" "ubuntu_cloud" {
   cpus   = 1
 
   cd_files = [
-    "http/user-data",
-    "http/meta-data",
+    "cloud_init/user-data",
+    "cloud_init/meta-data",
   ]
   cd_label = "cidata"
 
