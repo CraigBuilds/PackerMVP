@@ -14,10 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install QEMU
+      - name: Install QEMU and xorriso
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-x86
+          sudo apt-get install -y qemu-system-x86 xorriso
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
