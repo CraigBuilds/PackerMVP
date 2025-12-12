@@ -11,6 +11,7 @@ jobs:
 
     env:
       PACKER_LOG: "TRACE"
+      PACKER_LOG_PATH: "packer.log"
 
     steps:
       - uses: actions/checkout@v4
@@ -32,56 +33,12 @@ jobs:
       - run: packer validate packer.pkr.hcl
       - run: packer build packer.pkr.hcl
 
-      - name: Debug filesystem (after Packer)
-        run: |
-          set -euo pipefail
-
-          echo "PWD=$(pwd)"
-          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
-          echo "RUNNER_TEMP=${RUNNER_TEMP}"
-          echo "HOME=${HOME}"
-
-          echo
-          echo "Workspace tree (depth 3):"
-          find "${GITHUB_WORKSPACE}" -maxdepth 3 -print
-
-          echo
-          echo "Artifacts in workspace (depth 8):"
-          find "${GITHUB_WORKSPACE}" \
-            -maxdepth 8 \
-            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
-            -print -exec ls -al {} \; || true
-
-          echo
-          echo "Artifacts in runner temp (depth 8):"
-          find "${RUNNER_TEMP}" \
-            -maxdepth 8 \
-            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
-            -print -exec ls -al {} \; || true
-
-          echo
-          echo "Artifacts in home (depth 8):"
-          find "${HOME}" \
-            -maxdepth 8 \
-            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
-            -print -exec ls -al {} \; || true
-
-      - name: Display VM size
-        run: |
-          set -euo pipefail
-          echo "PWD: $(pwd)"
-          echo "Top-level:"
-          ls -al
-          echo "output/:"
-          ls -al output || true
-          echo "All tar.gz (depth 8):"
-          find . -maxdepth 8 -type f -name '*.tar.gz' -print -exec ls -al {} \; || true
-          file="$(find . -maxdepth 8 -type f -name '*.tar.gz' | head -n 1 || true)"
-          if [ -z "$file" ]; then
-            echo "ERROR: No .tar.gz produced by packer/post-processor."
-            exit 1
-          fi
-          stat -c %s "$file"
+      - name: Upload packer log
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-log
+          path: packer.log
+          if-no-files-found: warn
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
