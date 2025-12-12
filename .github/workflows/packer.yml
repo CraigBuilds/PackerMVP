@@ -29,65 +29,32 @@ jobs:
       - name: Initialize Packer template
         run: packer init Packer/templates/packer-vm.pkr.hcl
 
-      - name: Validate Packer template (base)
-        run: |
-          packer validate \
-            -var "input_image=https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img" \
-            -var "output_directory=build-output-base" \
-            -var "output_name=craigs_vm_server" \
-            -var "input_provision_script=Packer/provision/provision-base.sh" \
-            -var "build_name=server-base" \
-            Packer/templates/packer-vm.pkr.hcl
+      - name: Provision base VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+          output_directory: "build-output-base"
+          output_name: "craigs_vm_server"
+          input_provision_script: "Packer/provision/provision-base.sh"
+          build_name: "server-base"
 
-      - name: Build server base VM
-        run: |
-          packer build \
-            -var "input_image=https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img" \
-            -var "output_directory=build-output-base" \
-            -var "output_name=craigs_vm_server" \
-            -var "input_provision_script=Packer/provision/provision-base.sh" \
-            -var "build_name=server-base" \
-            Packer/templates/packer-vm.pkr.hcl
+      - name: Provision desktop VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "build-output-base/craigs_vm_server"
+          output_directory: "build-output-desktop"
+          output_name: "craigs_vm_desktop"
+          input_provision_script: "Packer/provision/provision-desktop.sh"
+          build_name: "desktop"
 
-      - name: Validate Packer template (desktop)
-        run: |
-          packer validate \
-            -var "input_image=build-output-base/craigs_vm_server" \
-            -var "output_directory=build-output-desktop" \
-            -var "output_name=craigs_vm_desktop" \
-            -var "input_provision_script=Packer/provision/provision-desktop.sh" \
-            -var "build_name=desktop" \
-            Packer/templates/packer-vm.pkr.hcl
-
-      - name: Build desktop VM
-        run: |
-          packer build \
-            -var "input_image=build-output-base/craigs_vm_server" \
-            -var "output_directory=build-output-desktop" \
-            -var "output_name=craigs_vm_desktop" \
-            -var "input_provision_script=Packer/provision/provision-desktop.sh" \
-            -var "build_name=desktop" \
-            Packer/templates/packer-vm.pkr.hcl
-
-      - name: Validate Packer template (optimize)
-        run: |
-          packer validate \
-            -var "input_image=build-output-desktop/craigs_vm_desktop" \
-            -var "output_directory=build-output-optimize" \
-            -var "output_name=craigs_vm" \
-            -var "input_provision_script=Packer/provision/provision-optimize.sh" \
-            -var "build_name=optimize" \
-            Packer/templates/packer-vm.pkr.hcl
-
-      - name: Build optimized VM
-        run: |
-          packer build \
-            -var "input_image=build-output-desktop/craigs_vm_desktop" \
-            -var "output_directory=build-output-optimize" \
-            -var "output_name=craigs_vm" \
-            -var "input_provision_script=Packer/provision/provision-optimize.sh" \
-            -var "build_name=optimize" \
-            Packer/templates/packer-vm.pkr.hcl
+      - name: Provision optimized VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "build-output-desktop/craigs_vm_desktop"
+          output_directory: "build-output-optimize"
+          output_name: "craigs_vm"
+          input_provision_script: "Packer/provision/provision-optimize.sh"
+          build_name: "optimize"
 
       - name: Upload optimized VM artifact
         uses: actions/upload-artifact@v4
