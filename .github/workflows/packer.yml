@@ -65,46 +65,122 @@ jobs:
   convert-qemu:
     name: Package QEMU VM
     needs: build
-    uses: ./.github/workflows/convert-vm.yml
-    with:
-      input_artifact_name: "optimized-vm"
-      input_vm_name: "craigs_vm"
-      output_format: "qcow2"
-      output_name: "craigs_vm_qemu"
-      output_artifact_name: "vm-qemu"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download optimized VM
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-vm
+          path: vm
+
+      - name: Convert to QEMU format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "qcow2"
+          output_name: "craigs_vm_qemu"
+          output_directory: "dist"
+
+      - name: Upload QEMU VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-qemu
+          path: dist/*.tar.gz
 
   convert-virtualbox:
     name: Convert to VirtualBox
     needs: build
-    uses: ./.github/workflows/convert-vm.yml
-    with:
-      input_artifact_name: "optimized-vm"
-      input_vm_name: "craigs_vm"
-      output_format: "vdi"
-      output_name: "craigs_vm_virtualbox"
-      output_artifact_name: "vm-virtualbox"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download optimized VM
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-vm
+          path: vm
+
+      - name: Convert to VDI format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "vdi"
+          output_name: "craigs_vm_virtualbox"
+          output_directory: "dist"
+
+      - name: Upload VirtualBox VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-virtualbox
+          path: dist/*.tar.gz
 
   convert-hyperv:
     name: Convert to Hyper-V
     needs: build
-    uses: ./.github/workflows/convert-vm.yml
-    with:
-      input_artifact_name: "optimized-vm"
-      input_vm_name: "craigs_vm"
-      output_format: "vhdx"
-      output_name: "craigs_vm_hyperv"
-      output_artifact_name: "vm-hyperv"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download optimized VM
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-vm
+          path: vm
+
+      - name: Convert to VHDX format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "vhdx"
+          output_name: "craigs_vm_hyperv"
+          output_directory: "dist"
+
+      - name: Upload Hyper-V VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-hyperv
+          path: dist/*.tar.gz
 
   convert-proxmox:
     name: Package for Proxmox
     needs: build
-    uses: ./.github/workflows/convert-vm.yml
-    with:
-      input_artifact_name: "optimized-vm"
-      input_vm_name: "craigs_vm"
-      output_format: "qcow2"
-      output_name: "craigs_vm_proxmox"
-      output_artifact_name: "vm-proxmox"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download optimized VM
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-vm
+          path: vm
+
+      - name: Convert to Proxmox format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "qcow2"
+          output_name: "craigs_vm_proxmox"
+          output_directory: "dist"
+
+      - name: Upload Proxmox VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-proxmox
+          path: dist/*.tar.gz
 
   release:
     name: Create Release
