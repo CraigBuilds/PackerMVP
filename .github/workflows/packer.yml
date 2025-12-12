@@ -32,6 +32,12 @@ jobs:
       - run: packer validate packer.pkr.hcl
       - run: packer build packer.pkr.hcl
 
+      - name: Display VM size
+        run: |
+          echo "VM artifact size:"
+          ls -lh output/*.tar.gz
+          du -sh output/*.tar.gz
+
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
         with:
