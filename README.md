@@ -2,6 +2,39 @@
 
 A Packer configuration for building multiple VM formats from Ubuntu 22.04 with Desktop environment.
 
+## How This Works
+
+This repository uses Packer to build virtual machine images with Ubuntu Desktop that can be used across different virtualization platforms. Here's the approach and rationale:
+
+### Architecture
+
+1. **Base Image**: Starts with Ubuntu 22.04 Server cloud image (qcow2 format)
+   - Cloud images are optimized, pre-installed disk images that boot quickly
+   - They support cloud-init for automatic configuration (SSH keys, hostname, etc.)
+   - No manual installation process required
+
+2. **Desktop Installation**: The provisioning script installs `ubuntu-desktop-minimal`
+   - Ubuntu doesn't publish official Desktop cloud images, only Server
+   - Installing the desktop package on the server base is the standard approach
+   - Uses the minimal variant to reduce image size while providing full desktop functionality
+
+3. **Single Build, Multiple Formats**: QEMU builds the base VM once, then converts to other formats
+   - More efficient than maintaining separate build configurations
+   - Ensures consistency across all VM types
+   - Conversion uses qemu-img (VDI for VirtualBox, VHDX for Hyper-V)
+
+4. **Cloud-init Configuration**: Pre-configured user and SSH access
+   - Creates `packer` user with password and SSH key authentication
+   - SSH password authentication is disabled for security
+   - Local console login enabled for desktop access
+
+### Why These Choices?
+
+- **Cloud images over ISO**: Faster builds, no need for autoinstall configuration, already optimized
+- **Server base + Desktop install**: No official Desktop cloud images exist from Ubuntu
+- **Format conversion**: Simpler maintenance than multiple Packer builders
+- **4GB RAM**: Desktop environment requires more memory than minimal server
+
 ## Features
 
 - **Multiple VM Formats**: Builds QEMU (qcow2), VirtualBox (VDI), and Hyper-V (VHDX) from a single build
