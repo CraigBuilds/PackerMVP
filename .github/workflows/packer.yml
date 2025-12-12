@@ -65,9 +65,6 @@ jobs:
           name: server-base-vm
           path: build-output-base
 
-      - name: Rename base VM to expected name
-        run: mv build-output-base/craigs_vm_server build-output-base/craigs_vm_server
-
       - name: Initialize and validate Packer (desktop)
         run: |
           packer init packer-desktop.pkr.hcl
