@@ -6,26 +6,14 @@ autoinstall:
   identity:
     hostname: ubuntu-qemu
     username: packer
-    # password: "packer"
     password: $6$pt3E4Yoh$zUGGuZBSwTRVscYgYcH6ia8buAErOatoReg43iIZFM5tqOKgnKJPVXiV9KlPhAPA0ueMjJag6Pw22FMmozCq4/
 
   ssh:
     install-server: true
-    allow-pw: true
+    allow-pw: false
+    authorized-keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA51XpJB3/hs5jgBUJ/KR3Vdsoq6blFkNBI3GHU0O1un"
 
   storage:
     layout:
       name: direct
-
-  # This is cloud-init user-data for the installed system.
-  user-data:
-    disable_root: true
-    ssh_pwauth: true
-    write_files:
-      - path: /etc/ssh/sshd_config.d/99-packer.conf
-        permissions: "0644"
-        content: |
-          PasswordAuthentication yes
-          KbdInteractiveAuthentication yes
-    runcmd:
-      - systemctl restart ssh || systemctl restart sshd || true
