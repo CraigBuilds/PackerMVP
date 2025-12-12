@@ -1,19 +1,14 @@
 #cloud-config
-autoinstall:
-  version: 1
-  debug: true
+users:
+  - name: packer
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA51XpJB3/hs5jgBUJ/KR3Vdsoq6blFkNBI3GHU0O1un
 
-  identity:
-    hostname: ubuntu-qemu
-    username: packer
-    password: $6$pt3E4Yoh$zUGGuZBSwTRVscYgYcH6ia8buAErOatoReg43iIZFM5tqOKgnKJPVXiV9KlPhAPA0ueMjJag6Pw22FMmozCq4/
+ssh_pwauth: false
+disable_root: true
 
-  ssh:
-    install-server: true
-    allow-pw: false
-    authorized-keys:
-      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA51XpJB3/hs5jgBUJ/KR3Vdsoq6blFkNBI3GHU0O1un"
-
-  storage:
-    layout:
-      name: direct
+runcmd:
+  - systemctl enable ssh || true
+  - systemctl restart ssh || true
