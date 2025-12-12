@@ -6,7 +6,7 @@ echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 # Install Ubuntu Desktop
 echo "Installing Ubuntu Desktop environment..."
 sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ubuntu-desktop-minimal
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ubuntu-desktop-minimal
 
 # Enable graphical target
 sudo systemctl set-default graphical.target
@@ -32,7 +32,7 @@ sudo apt-get purge -y $(dpkg -l 'linux-image-*' | sed '/^ii/!d;/'"$(uname -r | s
 echo "Removing unnecessary locales..."
 echo 'localepurge localepurge/nopurge multiselect en_US.UTF-8' | sudo debconf-set-selections
 echo 'localepurge localepurge/use-dpkg-feature boolean false' | sudo debconf-set-selections
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y localepurge
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends localepurge
 sudo localepurge
 
 # Remove unnecessary packages
