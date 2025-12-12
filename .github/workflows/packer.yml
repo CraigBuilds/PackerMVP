@@ -1,20 +1,21 @@
-name: packer-qemu
+name: build-vm
 
 on:
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       PACKER_LOG: "TRACE"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install QEMU and xorriso
+      - name: Install QEMU + ISO tools
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-x86 xorriso
@@ -27,11 +28,23 @@ jobs:
       - name: Fix key permissions
         run: chmod 600 keys/packer_ed25519
 
-      - name: Packer init
-        run: packer init .
+      - run: packer init .
+      - run: packer validate packer.pkr.hcl
+      - run: packer build packer.pkr.hcl
 
-      - name: Packer validate
-        run: packer validate packer.pkr.hcl
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-output
+          path: output/
 
-      - name: Packer build
-        run: packer build packer.pkr.hcl
+      - name: Release (tag: latest)
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          commit: ${{ github.sha }}
+          name: latest
+          makeLatest: true
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: "output/*"
