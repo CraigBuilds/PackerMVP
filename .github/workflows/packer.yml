@@ -33,7 +33,9 @@ jobs:
       - run: packer build packer.pkr.hcl
 
       - name: Display VM size
-        run: stat -c %s output/craigs_vm.tar.gz
+        run: |
+          pwd ls -al ls -al output || true find . -maxdepth 4 -type f -name "*.tar.gz" -print -exec ls -al {} ;
+          stat -c %s output/craigs_vm.tar.gz
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
