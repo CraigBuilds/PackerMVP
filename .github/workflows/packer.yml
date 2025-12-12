@@ -33,7 +33,7 @@ jobs:
       - run: packer build packer.pkr.hcl
 
       - name: Display VM size
-        run: echo "$(stat -c %s output/craigs_vm.tar.gz)"
+        run: stat -c %s output/craigs_vm.tar.gz
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
