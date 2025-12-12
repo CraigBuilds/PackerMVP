@@ -14,3 +14,4 @@
 - Use a smaller OS than Ubuntu
 - Make new keys and move private key to secret
 - Cache things in the CI for speed
+- Artifacts can be deleted after they are released 
