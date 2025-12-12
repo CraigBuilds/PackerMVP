@@ -7,7 +7,7 @@ packer {
   }
 }
 
-source "qemu" "ubuntu_cloud" {
+source "qemu" "craigs_vm" {
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
   iso_checksum = "none"
 
@@ -35,8 +35,8 @@ source "qemu" "ubuntu_cloud" {
 }
 
 build {
-  name    = "ubuntu-cloud"
-  sources = ["source.qemu.ubuntu_cloud"]
+  name    = "craigs-vm"
+  sources = ["source.qemu.craigs_vm"]
 
   provisioner "shell" {
     script = "provision/provision.sh"
