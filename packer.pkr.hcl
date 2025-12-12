@@ -23,7 +23,8 @@ source "qemu" "ubuntu" {
   http_directory = "http"
   boot_wait      = "8s"
 
-  # GRUB cmdline; IMPORTANT: escape the ';' in ds=... with \;
+  # Ubuntu 22.04 live-server ISO autoinstall via GRUB cmdline.
+  # IMPORTANT: escape the ';' in ds=... with \;
   boot_command = [
     "c", "<wait>",
     "linux /casper/vmlinuz --- autoinstall debug ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
@@ -34,12 +35,11 @@ source "qemu" "ubuntu" {
     "<enter>"
   ]
 
-  ssh_username           = "packer"
-  ssh_password           = "packer"
-  ssh_timeout            = "40m"
-  ssh_handshake_attempts = 200
+  ssh_username         = "packer"
+  ssh_private_key_file = "keys/packer_ed25519"
+  ssh_timeout          = "40m"
 
-  shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
+  shutdown_command = "sudo shutdown -P now"
 }
 
 build {
