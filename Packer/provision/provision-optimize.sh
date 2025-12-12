@@ -25,7 +25,7 @@ sudo dd if=/dev/zero of=/EMPTY bs=1M || true
 sudo rm -f /EMPTY
 
 # Trim free space (helps qcow2 sparsity + compression)
-fstrim -av || true
+sudo fstrim -av || true
 
 # Sync to ensure all writes are flushed
 sync
