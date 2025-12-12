@@ -52,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: optimized-vm
-          path: build-output-optimize/craigs_vm
+          path: build-output-optimize/*
 
   convert-qemu:
     name: Package QEMU VM
