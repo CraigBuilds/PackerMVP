@@ -4,48 +4,100 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-base:
-    name: Build Base VM
-    uses: ./.github/workflows/provision-vm.yml
-    with:
-      iso_url: "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-      output_directory: "build-output-base"
-      vm_name: "craigs_vm_server"
-      provision_script: "Packer/provision/provision-base.sh"
-      build_name: "server-base"
-      artifact_name: "base-vm"
+  build:
+    name: Build VMs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
-  build-desktop:
-    name: Build Desktop VM
-    needs: build-base
-    uses: ./.github/workflows/provision-vm.yml
-    with:
-      iso_url: "build-output-base/craigs_vm_server"
-      output_directory: "build-output-desktop"
-      vm_name: "craigs_vm_desktop"
-      provision_script: "Packer/provision/provision-desktop.sh"
-      build_name: "desktop"
-      artifact_name: "desktop-vm"
-      input_artifact_name: "base-vm"
-      input_artifact_path: "build-output-base"
+    steps:
+      - uses: actions/checkout@v4
 
-  build-optimize:
-    name: Build Optimized VM
-    needs: build-desktop
-    uses: ./.github/workflows/provision-vm.yml
-    with:
-      iso_url: "build-output-desktop/craigs_vm_desktop"
-      output_directory: "build-output-optimize"
-      vm_name: "craigs_vm"
-      provision_script: "Packer/provision/provision-optimize.sh"
-      build_name: "optimize"
-      artifact_name: "optimized-vm"
-      input_artifact_name: "desktop-vm"
-      input_artifact_path: "build-output-desktop"
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 xorriso
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Fix key permissions
+        run: chmod 600 Packer/keys/packer_ed25519
+
+      - name: Initialize Packer template
+        run: packer init Packer/templates/packer-vm.pkr.hcl
+
+      - name: Validate Packer template (base)
+        run: |
+          packer validate \
+            -var "input_image=https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img" \
+            -var "output_directory=build-output-base" \
+            -var "output_name=craigs_vm_server" \
+            -var "input_provision_script=Packer/provision/provision-base.sh" \
+            -var "build_name=server-base" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Build server base VM
+        run: |
+          packer build \
+            -var "input_image=https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img" \
+            -var "output_directory=build-output-base" \
+            -var "output_name=craigs_vm_server" \
+            -var "input_provision_script=Packer/provision/provision-base.sh" \
+            -var "build_name=server-base" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Validate Packer template (desktop)
+        run: |
+          packer validate \
+            -var "input_image=build-output-base/craigs_vm_server" \
+            -var "output_directory=build-output-desktop" \
+            -var "output_name=craigs_vm_desktop" \
+            -var "input_provision_script=Packer/provision/provision-desktop.sh" \
+            -var "build_name=desktop" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Build desktop VM
+        run: |
+          packer build \
+            -var "input_image=build-output-base/craigs_vm_server" \
+            -var "output_directory=build-output-desktop" \
+            -var "output_name=craigs_vm_desktop" \
+            -var "input_provision_script=Packer/provision/provision-desktop.sh" \
+            -var "build_name=desktop" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Validate Packer template (optimize)
+        run: |
+          packer validate \
+            -var "input_image=build-output-desktop/craigs_vm_desktop" \
+            -var "output_directory=build-output-optimize" \
+            -var "output_name=craigs_vm" \
+            -var "input_provision_script=Packer/provision/provision-optimize.sh" \
+            -var "build_name=optimize" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Build optimized VM
+        run: |
+          packer build \
+            -var "input_image=build-output-desktop/craigs_vm_desktop" \
+            -var "output_directory=build-output-optimize" \
+            -var "output_name=craigs_vm" \
+            -var "input_provision_script=Packer/provision/provision-optimize.sh" \
+            -var "build_name=optimize" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Upload optimized VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-vm
+          path: build-output-optimize/*
 
   convert-qemu:
     name: Package QEMU VM
-    needs: build-optimize
+    needs: build
     uses: ./.github/workflows/convert-vm.yml
     with:
       input_artifact_name: "optimized-vm"
@@ -56,7 +108,7 @@ jobs:
 
   convert-virtualbox:
     name: Convert to VirtualBox
-    needs: build-optimize
+    needs: build
     uses: ./.github/workflows/convert-vm.yml
     with:
       input_artifact_name: "optimized-vm"
@@ -67,7 +119,7 @@ jobs:
 
   convert-hyperv:
     name: Convert to Hyper-V
-    needs: build-optimize
+    needs: build
     uses: ./.github/workflows/convert-vm.yml
     with:
       input_artifact_name: "optimized-vm"
@@ -78,7 +130,7 @@ jobs:
 
   convert-proxmox:
     name: Package for Proxmox
-    needs: build-optimize
+    needs: build
     uses: ./.github/workflows/convert-vm.yml
     with:
       input_artifact_name: "optimized-vm"

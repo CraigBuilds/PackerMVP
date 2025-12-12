@@ -3,28 +3,28 @@ name: provision-vm
 on:
   workflow_call:
     inputs:
-      iso_url:
-        description: 'URL or path to the base image (cloud image or existing QCOW2)'
+      input_image:
+        description: 'URL or path to the input base image (cloud image or existing QCOW2)'
         required: true
         type: string
       output_directory:
         description: 'Directory where the build output will be stored'
         required: true
         type: string
-      vm_name:
-        description: 'Name of the VM output file'
+      output_name:
+        description: 'Name of the output VM file'
         required: true
         type: string
-      provision_script:
+      input_provision_script:
         description: 'Path to the provisioning script to run'
         required: true
         type: string
       build_name:
-        description: 'Descriptive name for this build stage (e.g., server-base, desktop, optimize)'
+        description: 'Descriptive name for this build (displayed in Packer logs and build metadata, does not affect output files)'
         required: true
         type: string
-      artifact_name:
-        description: 'Name for the output artifact'
+      output_artifact_name:
+        description: 'Name for the output artifact to upload'
         required: true
         type: string
       input_artifact_name:
@@ -74,25 +74,25 @@ jobs:
       - name: Validate Packer template
         run: |
           packer validate \
-            -var "iso_url=${{ inputs.iso_url }}" \
+            -var "input_image=${{ inputs.input_image }}" \
             -var "output_directory=${{ inputs.output_directory }}" \
-            -var "vm_name=${{ inputs.vm_name }}" \
-            -var "provision_script=${{ inputs.provision_script }}" \
+            -var "output_name=${{ inputs.output_name }}" \
+            -var "input_provision_script=${{ inputs.input_provision_script }}" \
             -var "build_name=${{ inputs.build_name }}" \
             Packer/templates/packer-vm.pkr.hcl
 
       - name: Build VM with Packer
         run: |
           packer build \
-            -var "iso_url=${{ inputs.iso_url }}" \
+            -var "input_image=${{ inputs.input_image }}" \
             -var "output_directory=${{ inputs.output_directory }}" \
-            -var "vm_name=${{ inputs.vm_name }}" \
-            -var "provision_script=${{ inputs.provision_script }}" \
+            -var "output_name=${{ inputs.output_name }}" \
+            -var "input_provision_script=${{ inputs.input_provision_script }}" \
             -var "build_name=${{ inputs.build_name }}" \
             Packer/templates/packer-vm.pkr.hcl
 
       - name: Upload VM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.artifact_name }}
+          name: ${{ inputs.output_artifact_name }}
           path: ${{ inputs.output_directory }}/*

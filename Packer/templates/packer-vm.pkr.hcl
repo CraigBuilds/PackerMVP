@@ -7,9 +7,9 @@ packer {
   }
 }
 
-variable "iso_url" {
+variable "input_image" {
   type        = string
-  description = "URL or path to the base image (cloud image or existing QCOW2)"
+  description = "URL or path to the input base image (cloud image or existing QCOW2)"
 }
 
 variable "output_directory" {
@@ -17,31 +17,31 @@ variable "output_directory" {
   description = "Directory where the build output will be stored"
 }
 
-variable "vm_name" {
+variable "output_name" {
   type        = string
-  description = "Name of the VM output file"
+  description = "Name of the output VM file"
 }
 
-variable "provision_script" {
+variable "input_provision_script" {
   type        = string
   description = "Path to the provisioning script to run"
 }
 
 variable "build_name" {
   type        = string
-  description = "Name for this build"
+  description = "Descriptive name for this build (shown in Packer logs and build metadata)"
   default     = "vm-build"
 }
 
 source "qemu" "vm" {
-  iso_url      = var.iso_url
+  iso_url      = var.input_image
   iso_checksum = "none"
 
   disk_image = true
   format     = "qcow2"
 
   output_directory = var.output_directory
-  vm_name          = var.vm_name
+  vm_name          = var.output_name
   headless         = true
 
   memory = 2048
@@ -65,6 +65,6 @@ build {
   sources = ["source.qemu.vm"]
 
   provisioner "shell" {
-    script = var.provision_script
+    script = var.input_provision_script
   }
 }
