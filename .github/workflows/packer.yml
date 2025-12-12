@@ -4,11 +4,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-base:
-    name: Build Server Base VM
+  build:
+    name: Build VMs
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -34,41 +32,6 @@ jobs:
       - name: Build server base VM
         run: packer build packer-base.pkr.hcl
 
-      - name: Upload server base VM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-base-vm
-          path: build-output-base/craigs_vm_server
-
-  build-desktop:
-    name: Build Desktop VM
-    needs: build-base
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86 xorriso
-
-      - name: Setup Packer
-        uses: hashicorp/setup-packer@v3
-        with:
-          version: "1.11.0"
-
-      - name: Fix key permissions
-        run: chmod 600 keys/packer_ed25519
-
-      - name: Download server base VM
-        uses: actions/download-artifact@v4
-        with:
-          name: server-base-vm
-          path: build-output-base
-
       - name: Initialize and validate Packer (desktop)
         run: |
           packer init packer-desktop.pkr.hcl
@@ -76,6 +39,12 @@ jobs:
 
       - name: Build desktop VM
         run: packer build packer-desktop.pkr.hcl
+
+      - name: Upload server base VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-base-vm
+          path: build-output-base/craigs_vm_server
 
       - name: Upload desktop VM artifact
         uses: actions/upload-artifact@v4
@@ -85,10 +54,8 @@ jobs:
 
   convert-qemu:
     name: Package QEMU VMs
-    needs: [build-base, build-desktop]
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Download server base VM
@@ -119,10 +86,8 @@ jobs:
 
   convert-virtualbox:
     name: Convert to VirtualBox
-    needs: [build-base, build-desktop]
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Download server base VM
@@ -156,10 +121,8 @@ jobs:
 
   convert-hyperv:
     name: Convert to Hyper-V
-    needs: [build-base, build-desktop]
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Download server base VM
@@ -193,10 +156,8 @@ jobs:
 
   convert-proxmox:
     name: Package for Proxmox
-    needs: [build-base, build-desktop]
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Download server base VM

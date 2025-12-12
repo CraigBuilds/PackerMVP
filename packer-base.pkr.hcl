@@ -39,6 +39,6 @@ build {
   sources = ["source.qemu.server_base"]
 
   provisioner "shell" {
-    script = "provision/provision.sh"
+    script = "provision/provision_base.sh"
   }
 }
