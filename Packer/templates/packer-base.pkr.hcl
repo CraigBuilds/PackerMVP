@@ -22,13 +22,13 @@ source "qemu" "server_base" {
   cpus   = 2
 
   cd_files = [
-    "cloud_init/user-data",
-    "cloud_init/meta-data",
+    "../cloud_init/user-data",
+    "../cloud_init/meta-data",
   ]
   cd_label = "cidata"
 
   ssh_username         = "packer"
-  ssh_private_key_file = "keys/packer_ed25519"
+  ssh_private_key_file = "../keys/packer_ed25519"
   ssh_timeout          = "10m"
 
   shutdown_command = "sudo shutdown -P now"
@@ -39,6 +39,6 @@ build {
   sources = ["source.qemu.server_base"]
 
   provisioner "shell" {
-    script = "provision/provision_base.sh"
+    script = "../provision/provision_base.sh"
   }
 }
