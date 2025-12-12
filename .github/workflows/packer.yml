@@ -9,6 +9,7 @@ jobs:
 
     env:
       PACKER_LOG: "TRACE"
+      PACKER_LOG_PATH: "packer.log"
 
     steps:
       - name: Checkout
@@ -24,6 +25,9 @@ jobs:
         with:
           version: "1.11.0"
 
+      - name: Fix key permissions
+        run: chmod 600 keys/packer_ed25519
+
       - name: Packer init
         run: packer init .
 
@@ -32,3 +36,11 @@ jobs:
 
       - name: Packer build
         run: packer build packer.pkr.hcl
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-output
+          path: |
+            packer.log
+            output/
