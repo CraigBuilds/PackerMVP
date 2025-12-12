@@ -28,7 +28,7 @@ if [ -f ~/.bash_history ]; then
   cat /dev/null > ~/.bash_history && history -c
 fi
 
-#zero empty space (Todo)
+# zero empty space (Todo)
 
 # Sync to ensure all writes are flushed
 sync
