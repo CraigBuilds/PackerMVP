@@ -43,7 +43,7 @@ build {
   }
 
   post-processor "compress" {
-    output = "output/craigs_vm.tar.gz"
+    output = "${path.root}/output/craigs_vm.tar.gz"
     compression_level = 6
   }
 }
