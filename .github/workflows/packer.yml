@@ -4,14 +4,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-qemu:
+    name: Build QEMU VM
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     env:
       PACKER_LOG: "TRACE"
-      PACKER_LOG_PATH: "packer.log"
+      PACKER_LOG_PATH: "packer-qemu.log"
 
     steps:
       - uses: actions/checkout@v4
@@ -29,16 +30,180 @@ jobs:
       - name: Fix key permissions
         run: chmod 600 keys/packer_ed25519
 
-      - run: packer init .
-      - run: packer validate packer.pkr.hcl
-      - run: packer build packer.pkr.hcl
+      - name: Initialize Packer
+        run: packer init qemu.pkr.hcl
+
+      - name: Validate Packer config
+        run: packer validate qemu.pkr.hcl
+
+      - name: Build QEMU VM
+        run: packer build qemu.pkr.hcl
 
       - name: Upload packer log
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: packer-log
-          path: packer.log
+          name: packer-log-qemu
+          path: packer-qemu.log
           if-no-files-found: warn
+
+      - name: Upload QEMU VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-qemu
+          path: dist/craigs_vm_qemu.tar.gz
+
+  build-virtualbox:
+    name: Build VirtualBox VM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      PACKER_LOG: "TRACE"
+      PACKER_LOG_PATH: "packer-virtualbox.log"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install VirtualBox + ISO tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y virtualbox xorriso
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Fix key permissions
+        run: chmod 600 keys/packer_ed25519
+
+      - name: Initialize Packer
+        run: packer init virtualbox.pkr.hcl
+
+      - name: Validate Packer config
+        run: packer validate virtualbox.pkr.hcl
+
+      - name: Build VirtualBox VM
+        run: packer build virtualbox.pkr.hcl
+
+      - name: Upload packer log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: packer-log-virtualbox
+          path: packer-virtualbox.log
+          if-no-files-found: warn
+
+      - name: Upload VirtualBox VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-virtualbox
+          path: dist/craigs_vm_virtualbox.tar.gz
+
+  build-hyperv:
+    name: Build Hyper-V VM
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    env:
+      PACKER_LOG: "TRACE"
+      PACKER_LOG_PATH: "packer-hyperv.log"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Initialize Packer
+        run: packer init hyperv.pkr.hcl
+
+      - name: Validate Packer config
+        run: packer validate hyperv.pkr.hcl
+
+      - name: Build Hyper-V VM
+        run: packer build hyperv.pkr.hcl
+
+      - name: Upload packer log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: packer-log-hyperv
+          path: packer-hyperv.log
+          if-no-files-found: warn
+
+      - name: Upload Hyper-V VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-hyperv
+          path: dist/craigs_vm_hyperv.tar.gz
+
+  build-proxmox:
+    name: Build Proxmox VM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      PACKER_LOG: "TRACE"
+      PACKER_LOG_PATH: "packer-proxmox.log"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Initialize Packer
+        run: packer init proxmox.pkr.hcl
+
+      - name: Validate Packer config
+        run: |
+          # Proxmox requires connection to a Proxmox server
+          # This step would fail without proper credentials
+          echo "Skipping Proxmox build - requires Proxmox server access"
+          echo "To enable, set up self-hosted runner with Proxmox access"
+          exit 0
+
+      - name: Create placeholder artifact
+        run: |
+          mkdir -p dist
+          echo "Proxmox VM build requires a Proxmox server connection" > dist/proxmox_README.txt
+          echo "To build Proxmox VMs, configure a self-hosted runner with Proxmox access" >> dist/proxmox_README.txt
+          echo "and set the required variables: proxmox_url, proxmox_username, proxmox_password, proxmox_node" >> dist/proxmox_README.txt
+
+      - name: Upload Proxmox placeholder
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-proxmox
+          path: dist/proxmox_README.txt
+
+  release:
+    name: Create Release
+    needs: [build-qemu, build-virtualbox, build-hyperv, build-proxmox]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all VM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: vm-*
+          merge-multiple: true
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
@@ -49,4 +214,24 @@ jobs:
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: "dist/*.tar.gz"
+          artifacts: "artifacts/*"
+          body: |
+            # VM Images Release
+            
+            This release contains virtual machine images built with Packer:
+            
+            - **QEMU VM** (`craigs_vm_qemu.tar.gz`): QEMU/KVM compatible image in qcow2 format
+            - **VirtualBox VM** (`craigs_vm_virtualbox.tar.gz`): VirtualBox OVA format
+            - **Hyper-V VM** (`craigs_vm_hyperv.tar.gz`): Microsoft Hyper-V compatible image
+            - **Proxmox VM**: See README file for setup instructions
+            
+            All VMs are based on Ubuntu 22.04 LTS cloud image with cloud-init configuration.
+            
+            ## Usage
+            
+            Each VM is configured with:
+            - Username: `packer`
+            - SSH key authentication (see repository for public key)
+            - 2GB RAM, 2 CPU cores
+            
+            Extract the archives and import into your preferred virtualization platform.
