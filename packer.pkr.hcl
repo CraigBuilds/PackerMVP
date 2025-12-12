@@ -14,9 +14,6 @@ source "qemu" "craigs_vm" {
   disk_image = true
   format     = "qcow2"
   
-  # Enable QCOW2 compression to reduce image size
-  disk_compression = true
-
   output_directory = "output"
   vm_name          = "craigs_vm"
   headless         = true
@@ -47,6 +44,6 @@ build {
 
   post-processor "compress" {
     output = "output/craigs_vm.tar.gz"
-    compression_level = 9
+    compression_level = 6
   }
 }
