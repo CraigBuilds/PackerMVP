@@ -15,7 +15,7 @@ source "qemu" "ubuntu_cloud" {
   format     = "qcow2"
 
   output_directory = "output"
-  vm_name          = "ubuntu-cloud"
+  vm_name          = "craigs_vm"
   headless         = true
 
   memory = 1024
