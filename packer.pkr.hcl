@@ -13,7 +13,7 @@ source "qemu" "craigs_vm" {
 
   disk_image = true
   format     = "qcow2"
-  
+
   output_directory = "${path.root}/build-output"
   vm_name          = "craigs_vm"
   headless         = true
@@ -35,15 +35,10 @@ source "qemu" "craigs_vm" {
 }
 
 build {
-  name    = "craigs-vm"
+  name    = "base-vm"
   sources = ["source.qemu.craigs_vm"]
 
   provisioner "shell" {
     script = "provision/provision.sh"
-  }
-
-  post-processor "compress" {
-    output = "${path.root}/dist/craigs_vm.tar.gz"
-    compression_level = 6
   }
 }

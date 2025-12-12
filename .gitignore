@@ -1,0 +1,20 @@
+# Packer build outputs
+build-output*/
+dist/
+*.log
+
+# Packer crash logs
+crash.log
+
+# Packer plugin cache
+.packer.d/
+packer_cache/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
