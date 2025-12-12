@@ -14,10 +14,11 @@ sudo rm -rf /var/lib/apt/lists/*
 sudo rm -rf /tmp/*
 sudo rm -rf /var/tmp/*
 
-# Zero out free space to improve compression (limit to avoid excessive time)
-sudo dd if=/dev/zero of=/EMPTY bs=1M count=1024 || true
+# Zero out free space to improve compression
+# Limit to 1GB or fail gracefully to avoid filling disk
+sudo dd if=/dev/zero of=/EMPTY bs=1M count=1024 2>/dev/null || true
 sudo rm -f /EMPTY
 
-# Clear bash history files
-sudo find /home -name '.bash_history' -delete
-sudo rm -f /root/.bash_history
+# Clear bash history files safely
+sudo find /home -type f -name '.bash_history' -exec rm -f {} + 2>/dev/null || true
+sudo rm -f /root/.bash_history 2>/dev/null || true
