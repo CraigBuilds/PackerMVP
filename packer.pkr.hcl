@@ -23,6 +23,7 @@ source "qemu" "ubuntu" {
   http_directory = "http"
   boot_wait      = "8s"
 
+  # GRUB cmdline; IMPORTANT: escape the ';' in ds=... with \;
   boot_command = [
     "c", "<wait>",
     "linux /casper/vmlinuz --- autoinstall debug ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
@@ -33,9 +34,10 @@ source "qemu" "ubuntu" {
     "<enter>"
   ]
 
-  ssh_username = "packer"
-  ssh_password = "packer"
-  ssh_timeout  = "40m"
+  ssh_username           = "packer"
+  ssh_password           = "packer"
+  ssh_timeout            = "40m"
+  ssh_handshake_attempts = 200
 
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
 }
