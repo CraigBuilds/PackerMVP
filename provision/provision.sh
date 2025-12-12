@@ -3,10 +3,6 @@ set -eux
 
 echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl
-
-sudo systemctl enable --now ssh
 
 # Clean up to reduce image size
 echo "Cleaning up to reduce image size..."
@@ -31,6 +27,8 @@ sudo rm -rf /usr/share/man/*
 if [ -f ~/.bash_history ]; then
   cat /dev/null > ~/.bash_history && history -c
 fi
+
+#zero empty space (Todo)
 
 # Sync to ensure all writes are flushed
 sync
