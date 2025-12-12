@@ -66,10 +66,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install VirtualBox + ISO tools
+      - name: Install QEMU + ISO tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y virtualbox xorriso
+          sudo apt-get install -y qemu-system-x86 qemu-utils xorriso
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
@@ -104,7 +104,7 @@ jobs:
 
   build-hyperv:
     name: Build Hyper-V VM
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
 
@@ -115,10 +115,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install QEMU + ISO tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-utils xorriso
+
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
         with:
           version: "1.11.0"
+
+      - name: Fix key permissions
+        run: chmod 600 keys/packer_ed25519
 
       - name: Initialize Packer
         run: packer init hyperv.pkr.hcl
