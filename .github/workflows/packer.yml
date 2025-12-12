@@ -44,20 +44,21 @@ jobs:
           input_provision_script: "Packer/provision/provision-desktop.sh"
           build_name: "desktop"
 
-      - name: Provision optimized VM
-        uses: ./.github/actions/provision-vm
-        with:
-          input_image: "build-output-desktop/craigs_vm_desktop"
-          output_directory: "build-output-optimize"
-          output_name: "craigs_vm"
-          input_provision_script: "Packer/provision/provision-optimize.sh"
-          build_name: "optimize"
+      # Commented out to speed up pipelines - will revert later
+      # - name: Provision optimized VM
+      #   uses: ./.github/actions/provision-vm
+      #   with:
+      #     input_image: "build-output-desktop/craigs_vm_desktop"
+      #     output_directory: "build-output-optimize"
+      #     output_name: "craigs_vm"
+      #     input_provision_script: "Packer/provision/provision-optimize.sh"
+      #     build_name: "optimize"
 
-      - name: Upload optimized VM artifact
+      - name: Upload desktop VM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: optimized-vm
-          path: build-output-optimize/*
+          name: desktop-vm
+          path: build-output-desktop/*
 
   convert-qemu:
     name: Package QEMU VM
@@ -69,16 +70,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download optimized VM
+      - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
-          name: optimized-vm
+          name: desktop-vm
           path: vm
 
       - name: Convert to QEMU format
         uses: ./.github/actions/convert-vm
         with:
-          input_vm_path: "vm/craigs_vm"
+          input_vm_path: "vm/craigs_vm_desktop"
           output_format: "qcow2"
           output_name: "craigs_vm_qemu"
           output_directory: "dist"
@@ -99,16 +100,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download optimized VM
+      - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
-          name: optimized-vm
+          name: desktop-vm
           path: vm
 
       - name: Convert to VDI format
         uses: ./.github/actions/convert-vm
         with:
-          input_vm_path: "vm/craigs_vm"
+          input_vm_path: "vm/craigs_vm_desktop"
           output_format: "vdi"
           output_name: "craigs_vm_virtualbox"
           output_directory: "dist"
@@ -129,16 +130,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download optimized VM
+      - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
-          name: optimized-vm
+          name: desktop-vm
           path: vm
 
       - name: Convert to VHDX format
         uses: ./.github/actions/convert-vm
         with:
-          input_vm_path: "vm/craigs_vm"
+          input_vm_path: "vm/craigs_vm_desktop"
           output_format: "vhdx"
           output_name: "craigs_vm_hyperv"
           output_directory: "dist"
@@ -159,16 +160,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download optimized VM
+      - name: Download desktop VM
         uses: actions/download-artifact@v4
         with:
-          name: optimized-vm
+          name: desktop-vm
           path: vm
 
       - name: Convert to Proxmox format
         uses: ./.github/actions/convert-vm
         with:
-          input_vm_path: "vm/craigs_vm"
+          input_vm_path: "vm/craigs_vm_desktop"
           output_format: "qcow2"
           output_name: "craigs_vm_proxmox"
           output_directory: "dist"
