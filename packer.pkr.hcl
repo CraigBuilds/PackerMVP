@@ -15,6 +15,27 @@ packer {
   }
 }
 
+variable "proxmox_url" {
+  type    = string
+  default = ""
+}
+
+variable "proxmox_username" {
+  type    = string
+  default = ""
+}
+
+variable "proxmox_password" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "proxmox_node" {
+  type    = string
+  default = "pve"
+}
+
 source "qemu" "craigs_vm" {
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
   iso_checksum = "none"
@@ -72,11 +93,9 @@ source "virtualbox-iso" "craigs_vm" {
     "e<wait>",
     "<down><down><down><end>",
     "<bs><bs><bs><bs><wait>",
-    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
+    "autoinstall ds=nocloud ---<wait>",
     "<f10><wait>"
   ]
-
-  http_directory = "cloud_init"
 }
 
 source "proxmox-iso" "craigs_vm" {
@@ -130,27 +149,6 @@ source "proxmox-iso" "craigs_vm" {
 
   insecure_skip_tls_verify = true
   unmount_iso              = true
-}
-
-variable "proxmox_url" {
-  type    = string
-  default = ""
-}
-
-variable "proxmox_username" {
-  type    = string
-  default = ""
-}
-
-variable "proxmox_password" {
-  type      = string
-  default   = ""
-  sensitive = true
-}
-
-variable "proxmox_node" {
-  type    = string
-  default = "pve"
 }
 
 build {

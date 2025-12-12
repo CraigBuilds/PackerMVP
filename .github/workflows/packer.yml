@@ -162,10 +162,11 @@ jobs:
           
           # Get the latest tag (if any)
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          CURRENT_SHA=$(git rev-parse --short HEAD)
           if [ -n "$LATEST_TAG" ]; then
-            echo "**Full Changelog**: https://github.com/CraigBuilds/PackerMVP/compare/${LATEST_TAG}...latest" >> release_body.md
+            echo "**Full Changelog**: https://github.com/CraigBuilds/PackerMVP/compare/${LATEST_TAG}...${CURRENT_SHA}" >> release_body.md
           else
-            echo "**Full Changelog**: https://github.com/CraigBuilds/PackerMVP/commits/latest" >> release_body.md
+            echo "**Full Changelog**: https://github.com/CraigBuilds/PackerMVP/commits/main" >> release_body.md
           fi
 
       - name: Release (tag latest)

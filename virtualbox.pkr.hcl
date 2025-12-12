@@ -37,11 +37,9 @@ source "virtualbox-iso" "craigs_vm" {
     "e<wait>",
     "<down><down><down><end>",
     "<bs><bs><bs><bs><wait>",
-    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
+    "autoinstall ds=nocloud ---<wait>",
     "<f10><wait>"
   ]
-
-  http_directory = "cloud_init"
 }
 
 build {
