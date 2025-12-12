@@ -1,6 +1,6 @@
 # PackerMVP
 
-A Packer configuration for building multiple VM formats from Ubuntu 22.04 cloud images.
+A Packer configuration for building multiple VM formats from Ubuntu 22.04 with Desktop environment.
 
 ## Features
 
@@ -30,7 +30,7 @@ packer build packer.pkr.hcl
 
 This will:
 1. Build the base VM using QEMU from Ubuntu 22.04 cloud image
-2. Provision the VM with the provisioning script
+2. Install Ubuntu Desktop environment during provisioning
 3. Convert the qcow2 output to VDI and VHDX formats
 4. Compress all formats into separate tar.gz files in the `dist/` directory
 
@@ -44,11 +44,11 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 ## VM Configuration
 
 All VMs are configured with:
-- **OS**: Ubuntu 22.04 LTS (cloud image)
+- **OS**: Ubuntu 22.04 LTS (Desktop)
 - **User**: `packer`
 - **Local Login**: Username `packer`, password `packer` (change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
-- **Resources**: 2GB RAM, 2 CPUs
+- **Resources**: 4GB RAM, 2 CPUs
 - **SSH Public Key**: See `keys/packer_ed25519.pub`
 
 ## Todo

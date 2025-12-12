@@ -176,7 +176,7 @@ jobs:
             - **Hyper-V VM** (`craigs_vm_hyperv.tar.gz`): Microsoft Hyper-V VHDX format
             - **Proxmox VM** (`craigs_vm_proxmox.tar.gz`): Proxmox qcow2 format
             
-            All VMs are based on Ubuntu 22.04 LTS cloud image with cloud-init configuration.
+            All VMs are based on Ubuntu 22.04 LTS with Ubuntu Desktop environment installed.
             
             ## Configuration
             
@@ -184,6 +184,6 @@ jobs:
             - Local login password: `packer` (⚠️ **Change after first login!**)
             - SSH key authentication (password authentication disabled for SSH)
             - SSH public key available in repository
-            - 2GB RAM, 2 CPU cores
+            - 4GB RAM, 2 CPU cores
             
             Extract the archives and import into your preferred virtualization platform.

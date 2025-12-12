@@ -18,7 +18,7 @@ source "qemu" "craigs_vm" {
   vm_name          = "craigs_vm"
   headless         = true
 
-  memory = 2048
+  memory = 4096
   cpus   = 2
 
   cd_files = [
@@ -29,7 +29,7 @@ source "qemu" "craigs_vm" {
 
   ssh_username         = "packer"
   ssh_private_key_file = "keys/packer_ed25519"
-  ssh_timeout          = "10m"
+  ssh_timeout          = "20m"
 
   shutdown_command = "sudo shutdown -P now"
 }
