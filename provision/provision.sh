@@ -8,9 +8,9 @@ echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 echo "Cleaning up to reduce image size..."
 
 # Remove package manager caches
-sudo apt-get clean
-sudo apt-get autoclean
-sudo apt-get autoremove -y
+sudo apt-get -y autoremove --purge
+sudo apt-get -y clean
+sudo rm -rf /var/lib/apt/lists/*
 
 # Remove temporary files
 sudo rm -rf /tmp/*
@@ -29,6 +29,8 @@ if [ -f ~/.bash_history ]; then
 fi
 
 # zero empty space (Todo)
+# Trim free space (helps qcow2 sparsity + compression)
+fstrim -av || true
 
 # Sync to ensure all writes are flushed
 sync
