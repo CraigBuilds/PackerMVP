@@ -42,12 +42,16 @@ jobs:
         run: |
           echo "Checking artifact size..."
           ls -lh output/
-          size=$(stat -c%s output/craigs_vm.tar.gz)
-          echo "Compressed artifact size: $(numfmt --to=iec-i --suffix=B $size)"
-          if [ $size -gt 2147483648 ]; then
-            echo "ERROR: Artifact size exceeds 2 GiB limit!"
-            exit 1
-          fi
+          for file in output/*.tar.gz; do
+            if [ -f "$file" ]; then
+              size=$(stat -c%s "$file")
+              echo "Artifact $(basename $file) size: $(numfmt --to=iec-i --suffix=B $size)"
+              if [ $size -gt 2147483648 ]; then
+                echo "ERROR: Artifact size exceeds 2 GiB limit!"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1

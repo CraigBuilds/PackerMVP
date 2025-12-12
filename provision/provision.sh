@@ -27,8 +27,10 @@ sudo find /var/log -type f -exec truncate -s 0 {} \;
 sudo rm -rf /usr/share/doc/*
 sudo rm -rf /usr/share/man/*
 
-# Clear bash history
-cat /dev/null > ~/.bash_history && history -c
+# Clear bash history if it exists
+if [ -f ~/.bash_history ]; then
+  cat /dev/null > ~/.bash_history && history -c
+fi
 
 # Zero out free space to improve compression
 echo "Zeroing out free space for better compression..."
