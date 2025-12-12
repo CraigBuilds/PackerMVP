@@ -40,6 +40,8 @@ jobs:
           path: packer.log
           if-no-files-found: warn
 
+      - run: pwd && ls -lah && ls -lah output || true && find . -maxdepth 4 -name "*.tar.gz" -print
+
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
         with:
