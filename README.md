@@ -4,24 +4,28 @@ A Packer configuration for building multiple VM formats from Ubuntu 22.04 cloud 
 
 ## Features
 
-- **Two-Stage Build Process**: 
-  - Stage 1: Server base image (minimal, no desktop)
-  - Stage 2: Desktop image derived from base with XFCE desktop environment
+- **Three-Stage Build Process**: 
+  - Stage 1: Base - Cloud image with minimal configuration
+  - Stage 2: Desktop - Adds XFCE desktop environment
+  - Stage 3: Optimize - Size reduction and compression optimization
 - **Multiple VM Formats**: Builds QEMU (qcow2), VirtualBox (VDI), and Hyper-V (VHDX) from a single build
 - **Cloud-init**: Pre-configured with SSH key authentication
-- **Optimized**: Provisioning scripts reduce image size
+- **Optimized**: Provisioning scripts reduce image size below 2GB
 
 ## VM Types
 
-VM images are built using a two-stage process from Packer configurations:
+VM images are built using a three-stage process from Packer configurations:
 
-### Stage 1: Server Base (`Packer/templates/packer-base.pkr.hcl`)
-Minimal Ubuntu 22.04 server installation without desktop environment.
+### Stage 1: Base (`Packer/templates/packer-base.pkr.hcl`)
+Minimal Ubuntu 22.04 cloud image with basic configuration only.
 
 ### Stage 2: Desktop (`Packer/templates/packer-desktop.pkr.hcl`)
-Derived from the server base image, adds XFCE desktop environment.
+Derived from the base image, adds minimal XFCE desktop environment.
 
-Both stages produce:
+### Stage 3: Optimize (`Packer/templates/packer-optimize.pkr.hcl`)
+Derived from the desktop image, applies size optimizations and compression improvements.
+
+Final optimized image produces:
 - **QEMU** (qcow2): QEMU/KVM compatible format
 - **VirtualBox** (VDI): Converted from qcow2 using qemu-img
 - **Hyper-V** (VHDX): Converted from qcow2 using qemu-img
@@ -31,54 +35,38 @@ Both stages produce:
 
 ### Building Locally
 
-#### Build Server Base Only
+#### Build All Stages
 ```bash
-packer init Packer/templates/packer-base.pkr.hcl
-packer build Packer/templates/packer-base.pkr.hcl
-```
-
-This builds the minimal server image to `build-output-base/craigs_vm_server`.
-
-#### Build Desktop (requires base to be built first)
-```bash
-packer init Packer/templates/packer-desktop.pkr.hcl
-packer build Packer/templates/packer-desktop.pkr.hcl
-```
-
-This builds the desktop image from the base to `build-output-desktop/craigs_vm_desktop`.
-
-#### Build Both Stages
-```bash
-# Build base first
+# Stage 1: Base
 packer init Packer/templates/packer-base.pkr.hcl
 packer build Packer/templates/packer-base.pkr.hcl
 
-# Then build desktop
+# Stage 2: Desktop
 packer init Packer/templates/packer-desktop.pkr.hcl
 packer build Packer/templates/packer-desktop.pkr.hcl
+
+# Stage 3: Optimize
+packer init Packer/templates/packer-optimize.pkr.hcl
+packer build Packer/templates/packer-optimize.pkr.hcl
 ```
 
-#### Legacy Single Build (deprecated)
-The original `packer.pkr.hcl` is still available but will be removed in a future version:
-```bash
-packer init packer.pkr.hcl
-packer build packer.pkr.hcl
-```
+This builds the complete VM to `build-output-optimize/craigs_vm`.
 
 ### GitHub Actions Workflow
 
 Trigger the workflow manually from the Actions tab. The workflow will:
-1. Build the server base VM (Stage 1)
+1. Build the base VM (Stage 1)
 2. Build the desktop VM from the base (Stage 2)
-3. Convert both to all supported VM formats (QEMU, VirtualBox, Hyper-V, Proxmox)
-4. Upload all VM formats as artifacts
-5. Create a release with all VM images
+3. Optimize the desktop VM (Stage 3)
+4. Convert the optimized VM to all supported formats (QEMU, VirtualBox, Hyper-V, Proxmox)
+5. Upload all VM formats as artifacts
+6. Create a release with all VM images
 
 ## VM Configuration
 
-### Server Base Image
+### Base Image
 - **OS**: Ubuntu 22.04 LTS (cloud image)
-- **Type**: Minimal server installation
+- **Type**: Minimal cloud image with basic configuration
 - **User**: `packer`
 - **Local Login**: Username `packer`, password `packer` (change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
@@ -86,11 +74,14 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 - **SSH Public Key**: See `Packer/keys/packer_ed25519.pub`
 
 ### Desktop Image
-Includes everything from Server Base, plus:
-- **Desktop Environment**: XFCE (lightweight)
+Includes everything from Base, plus:
+- **Desktop Environment**: XFCE (minimal, lightweight)
 - **Display Manager**: LightDM
-- **Browser**: Firefox
-- **Additional**: XFCE goodies and utilities
+
+### Optimized Image
+Includes everything from Desktop, with:
+- Size-reduced through aggressive cleanup and compression
+- Ready for artifact upload (< 2GB)
 
 ## Todo
 

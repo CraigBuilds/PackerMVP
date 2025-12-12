@@ -40,17 +40,19 @@ jobs:
       - name: Build desktop VM
         run: packer build Packer/templates/packer-desktop.pkr.hcl
 
-      - name: Upload server base VM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-base-vm
-          path: build-output-base/craigs_vm_server
+      - name: Initialize and validate Packer (optimize)
+        run: |
+          packer init Packer/templates/packer-optimize.pkr.hcl
+          packer validate Packer/templates/packer-optimize.pkr.hcl
 
-      - name: Upload desktop VM artifact
+      - name: Build optimized VM
+        run: packer build Packer/templates/packer-optimize.pkr.hcl
+
+      - name: Upload optimized VM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-vm
-          path: build-output-desktop/craigs_vm_desktop
+          name: optimized-vm
+          path: build-output-optimize/craigs_vm
 
   convert-qemu:
     name: Package QEMU VM
@@ -58,17 +60,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download desktop VM
+      - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
-          name: desktop-vm
-          path: desktop
+          name: optimized-vm
+          path: vm
 
       - name: Package QEMU format
         run: |
           mkdir -p dist
-          cp desktop/craigs_vm_desktop dist/craigs_vm_desktop.qcow2
-          tar -czf dist/craigs_vm_desktop_qemu.tar.gz -C dist craigs_vm_desktop.qcow2
+          cp vm/craigs_vm dist/craigs_vm.qcow2
+          tar -czf dist/craigs_vm_qemu.tar.gz -C dist craigs_vm.qcow2
 
       - name: Upload QEMU VM
         uses: actions/upload-artifact@v4
@@ -82,11 +84,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download desktop VM
+      - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
-          name: desktop-vm
-          path: desktop
+          name: optimized-vm
+          path: vm
 
       - name: Install qemu-utils
         run: sudo apt-get update && sudo apt-get install -y qemu-utils
@@ -94,8 +96,8 @@ jobs:
       - name: Convert to VDI format
         run: |
           mkdir -p dist
-          qemu-img convert -f qcow2 -O vdi desktop/craigs_vm_desktop dist/craigs_vm_desktop_virtualbox.vdi
-          tar -czf dist/craigs_vm_desktop_virtualbox.tar.gz -C dist craigs_vm_desktop_virtualbox.vdi
+          qemu-img convert -f qcow2 -O vdi vm/craigs_vm dist/craigs_vm_virtualbox.vdi
+          tar -czf dist/craigs_vm_virtualbox.tar.gz -C dist craigs_vm_virtualbox.vdi
 
       - name: Upload VirtualBox VM
         uses: actions/upload-artifact@v4
@@ -109,11 +111,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download desktop VM
+      - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
-          name: desktop-vm
-          path: desktop
+          name: optimized-vm
+          path: vm
 
       - name: Install qemu-utils
         run: sudo apt-get update && sudo apt-get install -y qemu-utils
@@ -121,8 +123,8 @@ jobs:
       - name: Convert to VHDX format
         run: |
           mkdir -p dist
-          qemu-img convert -f qcow2 -O vhdx desktop/craigs_vm_desktop dist/craigs_vm_desktop_hyperv.vhdx
-          tar -czf dist/craigs_vm_desktop_hyperv.tar.gz -C dist craigs_vm_desktop_hyperv.vhdx
+          qemu-img convert -f qcow2 -O vhdx vm/craigs_vm dist/craigs_vm_hyperv.vhdx
+          tar -czf dist/craigs_vm_hyperv.tar.gz -C dist craigs_vm_hyperv.vhdx
 
       - name: Upload Hyper-V VM
         uses: actions/upload-artifact@v4
@@ -136,17 +138,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download desktop VM
+      - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
-          name: desktop-vm
-          path: desktop
+          name: optimized-vm
+          path: vm
 
       - name: Package for Proxmox (qcow2 format)
         run: |
           mkdir -p dist
-          cp desktop/craigs_vm_desktop dist/craigs_vm_desktop_proxmox.qcow2
-          tar -czf dist/craigs_vm_desktop_proxmox.tar.gz -C dist craigs_vm_desktop_proxmox.qcow2
+          cp vm/craigs_vm dist/craigs_vm_proxmox.qcow2
+          tar -czf dist/craigs_vm_proxmox.tar.gz -C dist craigs_vm_proxmox.qcow2
 
       - name: Upload Proxmox VM
         uses: actions/upload-artifact@v4
@@ -187,14 +189,14 @@ jobs:
           body: |
             # VM Images Release
             
-            This release contains desktop VM images built with Packer in a two-stage process.
+            This release contains desktop VM images built with Packer in a three-stage process.
             
             ## Desktop Images
-            Built from server base with XFCE desktop environment in multiple formats:
-            - **QEMU Desktop** (`craigs_vm_desktop_qemu.tar.gz`): QEMU/KVM qcow2 format
-            - **VirtualBox Desktop** (`craigs_vm_desktop_virtualbox.tar.gz`): VirtualBox VDI format
-            - **Hyper-V Desktop** (`craigs_vm_desktop_hyperv.tar.gz`): Microsoft Hyper-V VHDX format
-            - **Proxmox Desktop** (`craigs_vm_desktop_proxmox.tar.gz`): Proxmox qcow2 format
+            Built from Ubuntu 22.04 cloud image with XFCE desktop environment in multiple formats:
+            - **QEMU** (`craigs_vm_qemu.tar.gz`): QEMU/KVM qcow2 format
+            - **VirtualBox** (`craigs_vm_virtualbox.tar.gz`): VirtualBox VDI format
+            - **Hyper-V** (`craigs_vm_hyperv.tar.gz`): Microsoft Hyper-V VHDX format
+            - **Proxmox** (`craigs_vm_proxmox.tar.gz`): Proxmox qcow2 format
             
             All VMs are based on Ubuntu 22.04 LTS cloud image with cloud-init configuration.
             
