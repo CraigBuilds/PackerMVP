@@ -17,6 +17,7 @@ This repository uses Packer to build virtual machine images with Ubuntu Desktop 
    - Ubuntu doesn't publish official Desktop cloud images, only Server
    - Installing the desktop package on the server base is the standard approach
    - Uses the minimal variant to reduce image size while providing full desktop functionality
+   - Aggressive optimizations applied to meet 2GB size limit (removes snaps, locales, unnecessary packages)
 
 3. **Single Build, Multiple Formats**: QEMU builds the base VM once, then converts to other formats
    - More efficient than maintaining separate build configurations
@@ -40,7 +41,12 @@ This repository uses Packer to build virtual machine images with Ubuntu Desktop 
 - **Multiple VM Formats**: Builds QEMU (qcow2), VirtualBox (VDI), and Hyper-V (VHDX) from a single build
 - **Single Build Process**: Uses QEMU to build once, then converts to other formats
 - **Cloud-init**: Pre-configured with SSH key authentication
-- **Optimized**: Provisioning script reduces image size
+- **Highly Optimized**: Aggressive size reduction to fit under 2GB release limit
+  - Removes snap packages and snapd
+  - Purges unnecessary locales (keeps only en_US.UTF-8)
+  - Removes old kernels
+  - Removes unnecessary applications (games, LibreOffice, Thunderbird, etc.)
+  - Zeros free space for better compression
 
 ## VM Types
 
@@ -64,8 +70,9 @@ packer build packer.pkr.hcl
 This will:
 1. Build the base VM using QEMU from Ubuntu 22.04 cloud image
 2. Install Ubuntu Desktop environment during provisioning
-3. Convert the qcow2 output to VDI and VHDX formats
-4. Compress all formats into separate tar.gz files in the `dist/` directory
+3. Apply aggressive optimizations to reduce image size below 2GB
+4. Convert the qcow2 output to VDI and VHDX formats
+5. Compress all formats into separate tar.gz files in the `dist/` directory
 
 ### GitHub Actions Workflow
 
