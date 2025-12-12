@@ -8,8 +8,9 @@ packer {
 }
 
 source "virtualbox-iso" "craigs_vm" {
-  iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-  iso_checksum = "none"
+  iso_url              = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+  iso_checksum         = "none"
+  iso_target_extension = "img"
 
   guest_os_type = "Ubuntu_64"
 
