@@ -1,0 +1,98 @@
+name: provision-vm
+
+on:
+  workflow_call:
+    inputs:
+      input_image:
+        description: 'URL or path to the input base image (cloud image or existing QCOW2)'
+        required: true
+        type: string
+      output_directory:
+        description: 'Directory where the build output will be stored'
+        required: true
+        type: string
+      output_name:
+        description: 'Name of the output VM file'
+        required: true
+        type: string
+      input_provision_script:
+        description: 'Path to the provisioning script to run'
+        required: true
+        type: string
+      build_name:
+        description: 'Descriptive name for this build (displayed in Packer logs and build metadata, does not affect output files)'
+        required: true
+        type: string
+      output_artifact_name:
+        description: 'Name for the output artifact to upload'
+        required: true
+        type: string
+      input_artifact_name:
+        description: 'Name of the input artifact to download (optional, for chained builds)'
+        required: false
+        type: string
+        default: ''
+      input_artifact_path:
+        description: 'Path to extract the input artifact to (required if input_artifact_name is provided)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  build-vm:
+    name: Build VM - ${{ inputs.build_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download input artifact
+        if: inputs.input_artifact_name != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.input_artifact_name }}
+          path: ${{ inputs.input_artifact_path }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 xorriso
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "1.11.0"
+
+      - name: Fix key permissions
+        run: chmod 600 Packer/keys/packer_ed25519
+
+      - name: Initialize Packer template
+        run: packer init Packer/templates/packer-vm.pkr.hcl
+
+      - name: Validate Packer template
+        run: |
+          packer validate \
+            -var "input_image=${{ inputs.input_image }}" \
+            -var "output_directory=${{ inputs.output_directory }}" \
+            -var "output_name=${{ inputs.output_name }}" \
+            -var "input_provision_script=${{ inputs.input_provision_script }}" \
+            -var "build_name=${{ inputs.build_name }}" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Build VM with Packer
+        run: |
+          packer build \
+            -var "input_image=${{ inputs.input_image }}" \
+            -var "output_directory=${{ inputs.output_directory }}" \
+            -var "output_name=${{ inputs.output_name }}" \
+            -var "input_provision_script=${{ inputs.input_provision_script }}" \
+            -var "build_name=${{ inputs.build_name }}" \
+            Packer/templates/packer-vm.pkr.hcl
+
+      - name: Upload VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.output_artifact_name }}
+          path: ${{ inputs.output_directory }}/*

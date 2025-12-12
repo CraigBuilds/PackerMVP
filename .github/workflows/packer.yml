@@ -7,6 +7,8 @@ jobs:
   build:
     name: Build VMs
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -24,29 +26,32 @@ jobs:
       - name: Fix key permissions
         run: chmod 600 Packer/keys/packer_ed25519
 
-      - name: Initialize and validate Packer (base)
-        run: |
-          packer init Packer/templates/packer-base.pkr.hcl
-          packer validate Packer/templates/packer-base.pkr.hcl
+      - name: Provision base VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+          output_directory: "build-output-base"
+          output_name: "craigs_vm_server"
+          input_provision_script: "Packer/provision/provision-base.sh"
+          build_name: "server-base"
 
-      - name: Build server base VM
-        run: packer build Packer/templates/packer-base.pkr.hcl
+      - name: Provision desktop VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "build-output-base/craigs_vm_server"
+          output_directory: "build-output-desktop"
+          output_name: "craigs_vm_desktop"
+          input_provision_script: "Packer/provision/provision-desktop.sh"
+          build_name: "desktop"
 
-      - name: Initialize and validate Packer (desktop)
-        run: |
-          packer init Packer/templates/packer-desktop.pkr.hcl
-          packer validate Packer/templates/packer-desktop.pkr.hcl
-
-      - name: Build desktop VM
-        run: packer build Packer/templates/packer-desktop.pkr.hcl
-
-      - name: Initialize and validate Packer (optimize)
-        run: |
-          packer init Packer/templates/packer-optimize.pkr.hcl
-          packer validate Packer/templates/packer-optimize.pkr.hcl
-
-      - name: Build optimized VM
-        run: packer build Packer/templates/packer-optimize.pkr.hcl
+      - name: Provision optimized VM
+        uses: ./.github/actions/provision-vm
+        with:
+          input_image: "build-output-desktop/craigs_vm_desktop"
+          output_directory: "build-output-optimize"
+          output_name: "craigs_vm"
+          input_provision_script: "Packer/provision/provision-optimize.sh"
+          build_name: "optimize"
 
       - name: Upload optimized VM artifact
         uses: actions/upload-artifact@v4
@@ -58,19 +63,25 @@ jobs:
     name: Package QEMU VM
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
           name: optimized-vm
           path: vm
 
-      - name: Package QEMU format
-        run: |
-          mkdir -p dist
-          cp vm/craigs_vm dist/craigs_vm.qcow2
-          tar -czf dist/craigs_vm_qemu.tar.gz -C dist craigs_vm.qcow2
+      - name: Convert to QEMU format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "qcow2"
+          output_name: "craigs_vm_qemu"
+          output_directory: "dist"
 
       - name: Upload QEMU VM
         uses: actions/upload-artifact@v4
@@ -82,22 +93,25 @@ jobs:
     name: Convert to VirtualBox
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
           name: optimized-vm
           path: vm
 
-      - name: Install qemu-utils
-        run: sudo apt-get update && sudo apt-get install -y qemu-utils
-
       - name: Convert to VDI format
-        run: |
-          mkdir -p dist
-          qemu-img convert -f qcow2 -O vdi vm/craigs_vm dist/craigs_vm_virtualbox.vdi
-          tar -czf dist/craigs_vm_virtualbox.tar.gz -C dist craigs_vm_virtualbox.vdi
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "vdi"
+          output_name: "craigs_vm_virtualbox"
+          output_directory: "dist"
 
       - name: Upload VirtualBox VM
         uses: actions/upload-artifact@v4
@@ -109,22 +123,25 @@ jobs:
     name: Convert to Hyper-V
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
           name: optimized-vm
           path: vm
 
-      - name: Install qemu-utils
-        run: sudo apt-get update && sudo apt-get install -y qemu-utils
-
       - name: Convert to VHDX format
-        run: |
-          mkdir -p dist
-          qemu-img convert -f qcow2 -O vhdx vm/craigs_vm dist/craigs_vm_hyperv.vhdx
-          tar -czf dist/craigs_vm_hyperv.tar.gz -C dist craigs_vm_hyperv.vhdx
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "vhdx"
+          output_name: "craigs_vm_hyperv"
+          output_directory: "dist"
 
       - name: Upload Hyper-V VM
         uses: actions/upload-artifact@v4
@@ -136,19 +153,25 @@ jobs:
     name: Package for Proxmox
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download optimized VM
         uses: actions/download-artifact@v4
         with:
           name: optimized-vm
           path: vm
 
-      - name: Package for Proxmox (qcow2 format)
-        run: |
-          mkdir -p dist
-          cp vm/craigs_vm dist/craigs_vm_proxmox.qcow2
-          tar -czf dist/craigs_vm_proxmox.tar.gz -C dist craigs_vm_proxmox.qcow2
+      - name: Convert to Proxmox format
+        uses: ./.github/actions/convert-vm
+        with:
+          input_vm_path: "vm/craigs_vm"
+          output_format: "qcow2"
+          output_name: "craigs_vm_proxmox"
+          output_directory: "dist"
 
       - name: Upload Proxmox VM
         uses: actions/upload-artifact@v4

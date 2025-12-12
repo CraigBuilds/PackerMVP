@@ -1,0 +1,35 @@
+name: 'Convert VM'
+description: 'Converts a VM image to different formats (qcow2, vdi, vhdx)'
+inputs:
+  input_vm_path:
+    description: 'Path to the input VM file'
+    required: true
+  output_format:
+    description: 'Target format (qcow2, vdi, vhdx)'
+    required: true
+  output_name:
+    description: 'Name for the output file (without extension)'
+    required: true
+  output_directory:
+    description: 'Directory where converted VM will be stored'
+    required: true
+    default: 'dist'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install qemu-utils
+      if: inputs.output_format != 'qcow2'
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+    - name: Convert VM
+      shell: bash
+      run: |
+        mkdir -p ${{ inputs.output_directory }}
+        if [ "${{ inputs.output_format }}" = "qcow2" ]; then
+          cp ${{ inputs.input_vm_path }} ${{ inputs.output_directory }}/${{ inputs.output_name }}.qcow2
+        else
+          qemu-img convert -f qcow2 -O ${{ inputs.output_format }} ${{ inputs.input_vm_path }} ${{ inputs.output_directory }}/${{ inputs.output_name }}.${{ inputs.output_format }}
+        fi
+        tar -czf ${{ inputs.output_directory }}/${{ inputs.output_name }}.tar.gz -C ${{ inputs.output_directory }} ${{ inputs.output_name }}.${{ inputs.output_format }}
