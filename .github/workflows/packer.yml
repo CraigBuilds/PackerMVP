@@ -5,10 +5,8 @@ on:
 
 jobs:
   build:
-    name: Build All VMs
+    name: Build Base VM
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-x86 qemu-utils xorriso
+          sudo apt-get install -y qemu-system-x86 xorriso
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
@@ -31,23 +29,127 @@ jobs:
           packer init packer.pkr.hcl
           packer validate packer.pkr.hcl
 
-      - name: Build VMs
+      - name: Build base VM
         run: packer build packer.pkr.hcl
-        env:
-          PACKER_LOG: "1"
 
-      - name: Create Proxmox placeholder
+      - name: Upload base VM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-vm
+          path: build-output/craigs_vm
+
+  convert-qemu:
+    name: Package QEMU VM
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download base VM
+        uses: actions/download-artifact@v4
+        with:
+          name: base-vm
+
+      - name: Package QEMU format
+        run: |
+          mkdir -p dist
+          cp craigs_vm dist/craigs_vm_qemu.qcow2
+          tar -czf dist/craigs_vm_qemu.tar.gz -C dist craigs_vm_qemu.qcow2
+
+      - name: Upload QEMU VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-qemu
+          path: dist/craigs_vm_qemu.tar.gz
+
+  convert-virtualbox:
+    name: Convert to VirtualBox
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download base VM
+        uses: actions/download-artifact@v4
+        with:
+          name: base-vm
+
+      - name: Install qemu-utils
+        run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+      - name: Convert to VDI format
+        run: |
+          mkdir -p dist
+          qemu-img convert -f qcow2 -O vdi craigs_vm dist/craigs_vm_virtualbox.vdi
+          tar -czf dist/craigs_vm_virtualbox.tar.gz -C dist craigs_vm_virtualbox.vdi
+
+      - name: Upload VirtualBox VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-virtualbox
+          path: dist/craigs_vm_virtualbox.tar.gz
+
+  convert-hyperv:
+    name: Convert to Hyper-V
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download base VM
+        uses: actions/download-artifact@v4
+        with:
+          name: base-vm
+
+      - name: Install qemu-utils
+        run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+      - name: Convert to VHDX format
+        run: |
+          mkdir -p dist
+          qemu-img convert -f qcow2 -O vhdx craigs_vm dist/craigs_vm_hyperv.vhdx
+          tar -czf dist/craigs_vm_hyperv.tar.gz -C dist craigs_vm_hyperv.vhdx
+
+      - name: Upload Hyper-V VM
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-hyperv
+          path: dist/craigs_vm_hyperv.tar.gz
+
+  create-proxmox-placeholder:
+    name: Create Proxmox Placeholder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create placeholder
         run: |
           mkdir -p dist
           echo "Proxmox VM build requires a Proxmox server connection" > dist/proxmox_README.txt
           echo "To build Proxmox VMs, configure a self-hosted runner with Proxmox access" >> dist/proxmox_README.txt
           echo "and set the required variables: proxmox_url, proxmox_username, proxmox_password, proxmox_node" >> dist/proxmox_README.txt
 
-      - name: Upload build artifacts
+      - name: Upload Proxmox placeholder
         uses: actions/upload-artifact@v4
         with:
-          name: vm-images
-          path: dist/*
+          name: vm-proxmox
+          path: dist/proxmox_README.txt
+
+  release:
+    name: Create Release
+    needs: [convert-qemu, convert-virtualbox, convert-hyperv, create-proxmox-placeholder]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: vm-*
+          merge-multiple: true
+
+      - name: Display artifacts
+        run: ls -lh artifacts/
 
       - name: Create release
         uses: ncipollo/release-action@v1
@@ -58,7 +160,7 @@ jobs:
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: "dist/*"
+          artifacts: "artifacts/*"
           body: |
             # VM Images Release
             

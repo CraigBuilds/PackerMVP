@@ -35,28 +35,10 @@ source "qemu" "craigs_vm" {
 }
 
 build {
-  name    = "all-vms"
+  name    = "base-vm"
   sources = ["source.qemu.craigs_vm"]
 
   provisioner "shell" {
     script = "provision/provision.sh"
-  }
-
-  # Convert to all formats and compress
-  post-processor "shell-local" {
-    inline = [
-      "mkdir -p ${path.root}/dist",
-      # QEMU qcow2 format
-      "cp ${path.root}/build-output/craigs_vm ${path.root}/dist/craigs_vm_qemu.qcow2",
-      "tar -czf ${path.root}/dist/craigs_vm_qemu.tar.gz -C ${path.root}/dist craigs_vm_qemu.qcow2",
-      # VirtualBox VDI format
-      "qemu-img convert -f qcow2 -O vdi ${path.root}/build-output/craigs_vm ${path.root}/dist/craigs_vm_virtualbox.vdi",
-      "tar -czf ${path.root}/dist/craigs_vm_virtualbox.tar.gz -C ${path.root}/dist craigs_vm_virtualbox.vdi",
-      # Hyper-V VHDX format
-      "qemu-img convert -f qcow2 -O vhdx ${path.root}/build-output/craigs_vm ${path.root}/dist/craigs_vm_hyperv.vhdx",
-      "tar -czf ${path.root}/dist/craigs_vm_hyperv.tar.gz -C ${path.root}/dist craigs_vm_hyperv.vhdx",
-      # Clean up intermediate files
-      "rm -f ${path.root}/dist/*.qcow2 ${path.root}/dist/*.vdi ${path.root}/dist/*.vhdx"
-    ]
   }
 }
