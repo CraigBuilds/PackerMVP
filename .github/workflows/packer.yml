@@ -32,6 +32,40 @@ jobs:
       - run: packer validate packer.pkr.hcl
       - run: packer build packer.pkr.hcl
 
+      - name: Debug filesystem (after Packer)
+        run: |
+          set -euo pipefail
+
+          echo "PWD=$(pwd)"
+          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
+          echo "RUNNER_TEMP=${RUNNER_TEMP}"
+          echo "HOME=${HOME}"
+
+          echo
+          echo "Workspace tree (depth 3):"
+          find "${GITHUB_WORKSPACE}" -maxdepth 3 -print
+
+          echo
+          echo "Artifacts in workspace (depth 8):"
+          find "${GITHUB_WORKSPACE}" \
+            -maxdepth 8 \
+            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
+            -print -exec ls -al {} \; || true
+
+          echo
+          echo "Artifacts in runner temp (depth 8):"
+          find "${RUNNER_TEMP}" \
+            -maxdepth 8 \
+            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
+            -print -exec ls -al {} \; || true
+
+          echo
+          echo "Artifacts in home (depth 8):"
+          find "${HOME}" \
+            -maxdepth 8 \
+            -type f \( -name "*.tar.gz" -o -name "*.qcow2" -o -name "*.img" \) \
+            -print -exec ls -al {} \; || true
+
       - name: Display VM size
         run: |
           set -euo pipefail
