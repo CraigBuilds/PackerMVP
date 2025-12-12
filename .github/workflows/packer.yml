@@ -33,7 +33,21 @@ jobs:
       - run: packer build packer.pkr.hcl
 
       - name: Display VM size
-        run: file="$(find . -maxdepth 4 -type f -name '*.tar.gz' | head -n 1)" && test -n "$file" && stat -c %s "$file"
+        run: |
+          set -euo pipefail
+          echo "PWD: $(pwd)"
+          echo "Top-level:"
+          ls -al
+          echo "output/:"
+          ls -al output || true
+          echo "All tar.gz (depth 8):"
+          find . -maxdepth 8 -type f -name '*.tar.gz' -print -exec ls -al {} \; || true
+          file="$(find . -maxdepth 8 -type f -name '*.tar.gz' | head -n 1 || true)"
+          if [ -z "$file" ]; then
+            echo "ERROR: No .tar.gz produced by packer/post-processor."
+            exit 1
+          fi
+          stat -c %s "$file"
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
