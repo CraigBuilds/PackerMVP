@@ -20,3 +20,6 @@ output_dir      = "build-output"             # Directory for build output
 disk_format     = "qcow2"                    # Output disk format (qcow2, raw, etc.)
 headless        = true                       # Run VM without GUI during build
 ssh_timeout     = "10m"                      # SSH connection timeout
+
+# Desktop Environment
+install_desktop = true                       # Install Ubuntu Desktop environment (true/false)

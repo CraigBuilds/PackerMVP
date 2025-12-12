@@ -73,6 +73,12 @@ variable "ssh_timeout" {
   default     = "10m"
 }
 
+variable "install_desktop" {
+  type        = bool
+  description = "Install Ubuntu Desktop environment"
+  default     = true
+}
+
 packer {
   required_plugins {
     qemu = {
@@ -124,6 +130,7 @@ build {
       "VM_NAME=${var.vm_name}",
       "VM_HOSTNAME=${var.vm_hostname}",
       "SSH_USERNAME=${var.ssh_username}",
+      "INSTALL_DESKTOP=${var.install_desktop}",
     ]
   }
 }

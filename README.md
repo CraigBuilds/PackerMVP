@@ -31,9 +31,9 @@ This repository uses Packer to build virtual machine images with Ubuntu Desktop 
 ### Why These Choices?
 
 - **Cloud images over ISO**: Faster builds, no need for autoinstall configuration, already optimized
-- **Server base + Desktop install**: No official Desktop cloud images exist from Ubuntu
+- **Server base + Optional Desktop**: No official Desktop cloud images exist from Ubuntu, so we install it via provisioning script when needed
 - **Format conversion**: Simpler maintenance than multiple Packer builders
-- **4GB RAM**: Desktop environment requires more memory than minimal server
+- **4GB RAM default**: Desktop environment requires more memory (can be reduced for server-only builds)
 
 ## Features
 
@@ -77,6 +77,9 @@ output_dir      = "build-output"             # Directory for build output
 disk_format     = "qcow2"                    # Output disk format
 headless        = true                       # Run VM without GUI during build
 ssh_timeout     = "10m"                      # SSH connection timeout
+
+# Desktop Environment
+install_desktop = true                       # Install Ubuntu Desktop (set to false for server-only)
 ```
 
 You can create a `variables.auto.pkrvars.hcl` file for custom configurations that will be automatically loaded by Packer.
@@ -105,12 +108,13 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 ## VM Configuration
 
 Default VM configuration (customizable in `variables.pkrvars.hcl`):
-- **OS**: Ubuntu 22.04 LTS (Desktop - installed via provisioning script)
+- **OS**: Ubuntu 22.04 LTS (Desktop - optional, installed via provisioning script)
 - **User**: `packer` (configurable)
 - **Local Login**: Username `packer`, password `packer` (configurable - change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
 - **Resources**: 4GB RAM, 2 CPUs (configurable)
 - **Hostname**: `ubuntu-qemu` (configurable)
+- **Desktop Environment**: Ubuntu Desktop (configurable - set `install_desktop = false` for server-only)
 - **SSH Public Key**: See `keys/packer_ed25519.pub`
 
 ## Todo

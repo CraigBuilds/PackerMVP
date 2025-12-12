@@ -5,20 +5,26 @@ set -eux
 # - VM_NAME: Name of the VM
 # - VM_HOSTNAME: Hostname of the VM
 # - SSH_USERNAME: SSH username configured for the VM
+# - INSTALL_DESKTOP: Whether to install Ubuntu Desktop (true/false)
 
 echo "Provisioning VM: ${VM_NAME:-unknown}"
 echo "Hostname: ${VM_HOSTNAME:-unknown}"
 echo "User: ${SSH_USERNAME:-unknown}"
+echo "Install Desktop: ${INSTALL_DESKTOP:-false}"
 
 echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 
-# Install Ubuntu Desktop
-echo "Installing Ubuntu Desktop environment..."
-sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ubuntu-desktop-minimal
-
-# Enable graphical target
-sudo systemctl set-default graphical.target
+# Install Ubuntu Desktop (if enabled)
+if [ "${INSTALL_DESKTOP}" = "true" ]; then
+  echo "Installing Ubuntu Desktop environment..."
+  sudo apt-get update
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ubuntu-desktop-minimal
+  
+  # Enable graphical target
+  sudo systemctl set-default graphical.target
+else
+  echo "Skipping Ubuntu Desktop installation (INSTALL_DESKTOP=${INSTALL_DESKTOP})"
+fi
 
 # Clean up to reduce image size
 echo "Cleaning up to reduce image size..."
