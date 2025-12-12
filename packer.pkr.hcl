@@ -120,5 +120,10 @@ build {
 
   provisioner "shell" {
     script = "provision/provision.sh"
+    environment_vars = [
+      "VM_NAME=${var.vm_name}",
+      "VM_HOSTNAME=${var.vm_hostname}",
+      "SSH_USERNAME=${var.ssh_username}",
+    ]
   }
 }

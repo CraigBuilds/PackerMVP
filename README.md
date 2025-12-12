@@ -46,7 +46,7 @@ headless        = true                       # Run VM without GUI during build
 ssh_timeout     = "10m"                      # SSH connection timeout
 ```
 
-See `variables.example.pkrvars.hcl` for more examples. You can create a `variables.auto.pkrvars.hcl` file for custom configurations that will be automatically loaded by Packer.
+You can create a `variables.auto.pkrvars.hcl` file for custom configurations that will be automatically loaded by Packer.
 
 ### Building Locally
 

@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -eux
 
+# Environment variables passed from Packer:
+# - VM_NAME: Name of the VM
+# - VM_HOSTNAME: Hostname of the VM
+# - SSH_USERNAME: SSH username configured for the VM
+
+echo "Provisioning VM: ${VM_NAME:-unknown}"
+echo "Hostname: ${VM_HOSTNAME:-unknown}"
+echo "User: ${SSH_USERNAME:-unknown}"
+
 echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 
 
