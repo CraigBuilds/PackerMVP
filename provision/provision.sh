@@ -19,4 +19,5 @@ sudo dd if=/dev/zero of=/EMPTY bs=1M count=1024 || true
 sudo rm -f /EMPTY
 
 # Clear bash history files
-sudo rm -f ~/.bash_history /root/.bash_history /home/*/.bash_history
+sudo find /home -name '.bash_history' -delete
+sudo rm -f /root/.bash_history
