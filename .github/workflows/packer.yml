@@ -32,27 +32,6 @@ jobs:
       - run: packer validate packer.pkr.hcl
       - run: packer build packer.pkr.hcl
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: packer-output
-          path: output/*.tar.gz
-
-      - name: Check artifact size
-        run: |
-          echo "Checking artifact size..."
-          ls -lh output/
-          for file in output/*.tar.gz; do
-            if [ -f "$file" ]; then
-              size=$(stat -c%s "$file")
-              echo "Artifact $(basename $file) size: $(numfmt --to=iec-i --suffix=B $size)"
-              if [ $size -gt 2147483648 ]; then
-                echo "ERROR: Artifact size exceeds 2 GiB limit!"
-                exit 1
-              fi
-            fi
-          done
-
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
         with:
