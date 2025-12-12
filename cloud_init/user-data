@@ -3,6 +3,9 @@ users:
   - name: packer
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
+    # Default password is "packer" - change after first login
+    passwd: $6$2DrWh0Z00evMlYK0$3msMl6g4FzamSEJNdK7bClCGw4Gwu1BlEbTUgiKykl9..VIII6Mg5xJcMQ8HilE/h/NyT1AV4JJHlQRUj2BtG/
+    lock_passwd: false
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA51XpJB3/hs5jgBUJ/KR3Vdsoq6blFkNBI3GHU0O1un
 

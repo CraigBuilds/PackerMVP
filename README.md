@@ -46,7 +46,8 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 All VMs are configured with:
 - **OS**: Ubuntu 22.04 LTS (cloud image)
 - **User**: `packer`
-- **Authentication**: SSH key only (password disabled)
+- **Local Login**: Username `packer`, password `packer` (change after first login)
+- **SSH Authentication**: SSH key only (password disabled for SSH)
 - **Resources**: 2GB RAM, 2 CPUs
 - **SSH Public Key**: See `keys/packer_ed25519.pub`
 

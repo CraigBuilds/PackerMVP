@@ -181,7 +181,9 @@ jobs:
             ## Configuration
             
             - Username: `packer`
-            - SSH key authentication (see repository for public key)
+            - Local login password: `packer` (⚠️ **Change after first login!**)
+            - SSH key authentication (password authentication disabled for SSH)
+            - SSH public key available in repository
             - 2GB RAM, 2 CPU cores
             
             Extract the archives and import into your preferred virtualization platform.
