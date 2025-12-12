@@ -6,7 +6,7 @@ echo 'provisioned-by-packer' | sudo tee /etc/provisioned-by-packer
 # Install Ubuntu Desktop
 echo "Installing Ubuntu Desktop environment..."
 sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ubuntu-desktop
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ubuntu-desktop-minimal
 
 # Enable graphical target
 sudo systemctl set-default graphical.target
