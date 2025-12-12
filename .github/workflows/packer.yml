@@ -1,7 +1,8 @@
-name: packer-qemu
+name: build-vm
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   build:
