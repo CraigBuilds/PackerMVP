@@ -29,7 +29,7 @@ source "qemu" "craigs_vm" {
 
   ssh_username         = "packer"
   ssh_private_key_file = "keys/packer_ed25519"
-  ssh_timeout          = "20m"
+  ssh_timeout          = "10m"
 
   shutdown_command = "sudo shutdown -P now"
 }
