@@ -13,17 +13,23 @@ This repository uses Packer to build virtual machine images with Ubuntu Desktop 
    - They support cloud-init for automatic configuration (SSH keys, hostname, etc.)
    - No manual installation process required
 
-2. **Desktop Installation**: The provisioning script installs `ubuntu-desktop-minimal`
+2. **Desktop Installation**: The provisioning script optionally installs `ubuntu-desktop-minimal`
    - Ubuntu doesn't publish official Desktop cloud images, only Server
    - Installing the desktop package on the server base is the standard approach
    - Uses the minimal variant to reduce image size while providing full desktop functionality
+   - Configurable via `install_desktop` variable (default: true)
 
-3. **Single Build, Multiple Formats**: QEMU builds the base VM once, then converts to other formats
+3. **Aggressive Image Optimization**: Optional aggressive cleanup reduces image size significantly
+   - Removes snap packages, unnecessary locales, old kernels, and bloatware
+   - Configurable via `aggressive_cleanup` variable (default: true)
+   - Can reduce desktop images to under 2GB
+
+4. **Single Build, Multiple Formats**: QEMU builds the base VM once, then converts to other formats
    - More efficient than maintaining separate build configurations
    - Ensures consistency across all VM types
    - Conversion uses qemu-img (VDI for VirtualBox, VHDX for Hyper-V)
 
-4. **Cloud-init Configuration**: Pre-configured user and SSH access
+5. **Cloud-init Configuration**: Pre-configured user and SSH access
    - Creates `packer` user with password and SSH key authentication
    - SSH password authentication is disabled for security
    - Local console login enabled for desktop access
@@ -80,6 +86,9 @@ ssh_timeout     = "10m"                      # SSH connection timeout
 
 # Desktop Environment
 install_desktop = true                       # Install Ubuntu Desktop (set to false for server-only)
+
+# Image Optimization
+aggressive_cleanup = true                    # Reduce image size aggressively (removes snaps, locales, etc.)
 ```
 
 You can create a `variables.auto.pkrvars.hcl` file for custom configurations that will be automatically loaded by Packer.
@@ -108,13 +117,14 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 ## VM Configuration
 
 Default VM configuration (customizable in `variables.pkrvars.hcl`):
-- **OS**: Ubuntu 22.04 LTS (Desktop - optional, installed via provisioning script)
+- **OS**: Ubuntu 22.04 LTS (Server base with optional Desktop)
 - **User**: `packer` (configurable)
 - **Local Login**: Username `packer`, password `packer` (configurable - change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
 - **Resources**: 4GB RAM, 2 CPUs (configurable)
 - **Hostname**: `ubuntu-qemu` (configurable)
 - **Desktop Environment**: Ubuntu Desktop (configurable - set `install_desktop = false` for server-only)
+- **Image Optimization**: Aggressive cleanup enabled (configurable - set `aggressive_cleanup = false` to keep snaps, locales, etc.)
 - **SSH Public Key**: See `keys/packer_ed25519.pub`
 
 ## Todo

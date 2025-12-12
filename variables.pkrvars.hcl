@@ -23,3 +23,6 @@ ssh_timeout     = "10m"                      # SSH connection timeout
 
 # Desktop Environment
 install_desktop = true                       # Install Ubuntu Desktop environment (true/false)
+
+# Image Optimization
+aggressive_cleanup = true                    # Reduce image size aggressively (removes snaps, locales, etc.)

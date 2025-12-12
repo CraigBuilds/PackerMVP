@@ -79,6 +79,12 @@ variable "install_desktop" {
   default     = true
 }
 
+variable "aggressive_cleanup" {
+  type        = bool
+  description = "Perform aggressive cleanup to reduce image size (removes snaps, locales, etc.)"
+  default     = true
+}
+
 packer {
   required_plugins {
     qemu = {
@@ -131,6 +137,7 @@ build {
       "VM_HOSTNAME=${var.vm_hostname}",
       "SSH_USERNAME=${var.ssh_username}",
       "INSTALL_DESKTOP=${var.install_desktop}",
+      "AGGRESSIVE_CLEANUP=${var.aggressive_cleanup}",
     ]
   }
 }
