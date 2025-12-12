@@ -18,8 +18,8 @@ source "qemu" "craigs_vm" {
   vm_name          = "craigs_vm"
   headless         = true
 
-  memory = 1024
-  cpus   = 1
+  memory = 2048
+  cpus   = 2
 
   cd_files = [
     "cloud_init/user-data",
