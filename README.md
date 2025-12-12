@@ -11,5 +11,6 @@
   - The workflow should build them in parallel 
 - Add more things to the provisioning step
 - Investigate implications of using a cloud image instead of an ISO with autoinstall. Maybe add an iso demo?
+- Use a smaller OS than Ubuntu
 - Make new keys and move private key to secret
 - Cache things in the CI for speed
