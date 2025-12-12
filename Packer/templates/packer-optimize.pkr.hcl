@@ -7,15 +7,16 @@ packer {
   }
 }
 
-source "qemu" "server_base" {
-  iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+source "qemu" "optimize" {
+  # Use the desktop QCOW2 as input
+  iso_url      = "${path.root}/build-output-desktop/craigs_vm_desktop"
   iso_checksum = "none"
 
   disk_image = true
   format     = "qcow2"
 
-  output_directory = "${path.root}/build-output-base"
-  vm_name          = "craigs_vm_server"
+  output_directory = "${path.root}/build-output-optimize"
+  vm_name          = "craigs_vm"
   headless         = true
 
   memory = 2048
@@ -35,10 +36,10 @@ source "qemu" "server_base" {
 }
 
 build {
-  name    = "server-base"
-  sources = ["source.qemu.server_base"]
+  name    = "optimize"
+  sources = ["source.qemu.optimize"]
 
   provisioner "shell" {
-    script = "Packer/provision/provision-base.sh"
+    script = "Packer/provision/provision-optimize.sh"
   }
 }
