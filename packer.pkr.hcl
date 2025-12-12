@@ -4,7 +4,7 @@
 variable "vm_memory" {
   type        = number
   description = "Memory allocation in MB"
-  default     = 2048
+  default     = 4096
 }
 
 variable "vm_cpus" {

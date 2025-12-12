@@ -2,7 +2,7 @@
 # Customize these values to adjust VM settings when building new images
 
 # VM Resource Settings
-vm_memory = 2048  # Memory in MB (default: 2048 = 2GB)
+vm_memory = 4096  # Memory in MB (default: 4096 = 4GB)
 vm_cpus   = 2     # Number of CPU cores
 
 # VM Identification
