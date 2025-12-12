@@ -9,7 +9,7 @@ packer {
 
 source "qemu" "craigs_vm" {
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-  iso_checksum = "none"
+  iso_checksum = "file:https://cloud-images.ubuntu.com/releases/jammy/release/SHA256SUMS"
 
   disk_image = true
   format     = "qcow2"

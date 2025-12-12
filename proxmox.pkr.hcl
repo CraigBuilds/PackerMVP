@@ -28,15 +28,21 @@ variable "proxmox_node" {
   default = "pve"
 }
 
+variable "proxmox_insecure_skip_tls_verify" {
+  type        = bool
+  default     = true
+  description = "Skip TLS certificate verification. Set to false for production environments with valid certificates."
+}
+
 source "proxmox-iso" "craigs_vm" {
   proxmox_url              = "${var.proxmox_url}"
   username                 = "${var.proxmox_username}"
   password                 = "${var.proxmox_password}"
   node                     = "${var.proxmox_node}"
-  insecure_skip_tls_verify = true
+  insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
 
   iso_url          = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-  iso_checksum     = "none"
+  iso_checksum     = "file:https://cloud-images.ubuntu.com/releases/jammy/release/SHA256SUMS"
   iso_storage_pool = "local"
 
   vm_name = "craigs_vm_proxmox"
