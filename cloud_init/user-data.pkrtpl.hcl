@@ -1,9 +1,9 @@
 #cloud-config
 users:
-  - name: packer
+  - name: ${ssh_username}
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
-    # Default password is "packer" - change after first login
+    # Default password is "${ssh_password}" - change after first login
     passwd: $6$2DrWh0Z00evMlYK0$3msMl6g4FzamSEJNdK7bClCGw4Gwu1BlEbTUgiKykl9..VIII6Mg5xJcMQ8HilE/h/NyT1AV4JJHlQRUj2BtG/
     lock_passwd: false
     ssh_authorized_keys:

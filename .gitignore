@@ -10,6 +10,10 @@ crash.log
 .packer.d/
 packer_cache/
 
+# Custom variable files (optional - uncomment to ignore your custom configs)
+# variables.auto.pkrvars.hcl
+# *.auto.pkrvars.hcl
+
 # Temporary files
 *.tmp
 *.swp

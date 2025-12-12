@@ -20,12 +20,38 @@ All VM types are built from a single `packer.pkr.hcl` configuration:
 
 ## Usage
 
+### Customizing VM Configuration
+
+All VM settings can be customized by editing `variables.pkrvars.hcl`:
+
+```hcl
+# VM Resource Settings
+vm_memory = 2048  # Memory in MB (default: 2048 = 2GB)
+vm_cpus   = 2     # Number of CPU cores
+
+# VM Identification
+vm_name      = "craigs_vm"     # Name of the VM output file
+vm_hostname  = "ubuntu-qemu"   # Hostname set inside the VM
+
+# User Account Settings
+ssh_username = "packer"                      # SSH username for provisioning
+ssh_password = "packer"                      # Local login password
+ssh_key_file = "keys/packer_ed25519"        # SSH private key path
+
+# Build Settings
+iso_url         = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+output_dir      = "build-output"             # Directory for build output
+disk_format     = "qcow2"                    # Output disk format
+headless        = true                       # Run VM without GUI during build
+ssh_timeout     = "10m"                      # SSH connection timeout
+```
+
 ### Building Locally
 
 Build all VM formats at once:
 ```bash
 packer init packer.pkr.hcl
-packer build packer.pkr.hcl
+packer build -var-file="variables.pkrvars.hcl" packer.pkr.hcl
 ```
 
 This will:
@@ -43,12 +69,13 @@ Trigger the workflow manually from the Actions tab. The workflow will:
 
 ## VM Configuration
 
-All VMs are configured with:
+Default VM configuration (customizable in `variables.pkrvars.hcl`):
 - **OS**: Ubuntu 22.04 LTS (cloud image)
-- **User**: `packer`
-- **Local Login**: Username `packer`, password `packer` (change after first login)
+- **User**: `packer` (configurable)
+- **Local Login**: Username `packer`, password `packer` (configurable - change after first login)
 - **SSH Authentication**: SSH key only (password disabled for SSH)
-- **Resources**: 2GB RAM, 2 CPUs
+- **Resources**: 2GB RAM, 2 CPUs (configurable)
+- **Hostname**: `ubuntu-qemu` (configurable)
 - **SSH Public Key**: See `keys/packer_ed25519.pub`
 
 ## Todo

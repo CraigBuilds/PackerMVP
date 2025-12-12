@@ -1,3 +1,78 @@
+# Variable Definitions
+# Override these values by editing variables.pkrvars.hcl
+
+variable "vm_memory" {
+  type        = number
+  description = "Memory allocation in MB"
+  default     = 2048
+}
+
+variable "vm_cpus" {
+  type        = number
+  description = "Number of CPU cores"
+  default     = 2
+}
+
+variable "vm_name" {
+  type        = string
+  description = "Name of the output VM file"
+  default     = "craigs_vm"
+}
+
+variable "vm_hostname" {
+  type        = string
+  description = "Hostname for the VM"
+  default     = "ubuntu-qemu"
+}
+
+variable "ssh_username" {
+  type        = string
+  description = "SSH username for provisioning"
+  default     = "packer"
+}
+
+variable "ssh_password" {
+  type        = string
+  description = "Local login password (change after first login)"
+  default     = "packer"
+}
+
+variable "ssh_key_file" {
+  type        = string
+  description = "Path to SSH private key for provisioning"
+  default     = "keys/packer_ed25519"
+}
+
+variable "iso_url" {
+  type        = string
+  description = "URL to the base OS image"
+  default     = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+}
+
+variable "output_dir" {
+  type        = string
+  description = "Directory for build output"
+  default     = "build-output"
+}
+
+variable "disk_format" {
+  type        = string
+  description = "Output disk format"
+  default     = "qcow2"
+}
+
+variable "headless" {
+  type        = bool
+  description = "Run VM without GUI during build"
+  default     = true
+}
+
+variable "ssh_timeout" {
+  type        = string
+  description = "SSH connection timeout"
+  default     = "10m"
+}
+
 packer {
   required_plugins {
     qemu = {
@@ -8,28 +83,33 @@ packer {
 }
 
 source "qemu" "craigs_vm" {
-  iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+  iso_url      = var.iso_url
   iso_checksum = "none"
 
   disk_image = true
-  format     = "qcow2"
+  format     = var.disk_format
 
-  output_directory = "${path.root}/build-output"
-  vm_name          = "craigs_vm"
-  headless         = true
+  output_directory = "${path.root}/${var.output_dir}"
+  vm_name          = var.vm_name
+  headless         = var.headless
 
-  memory = 2048
-  cpus   = 2
+  memory = var.vm_memory
+  cpus   = var.vm_cpus
 
-  cd_files = [
-    "cloud_init/user-data",
-    "cloud_init/meta-data",
-  ]
+  cd_content = {
+    "meta-data" = templatefile("${path.root}/cloud_init/meta-data.pkrtpl.hcl", {
+      vm_hostname = var.vm_hostname
+    })
+    "user-data" = templatefile("${path.root}/cloud_init/user-data.pkrtpl.hcl", {
+      ssh_username = var.ssh_username
+      ssh_password = var.ssh_password
+    })
+  }
   cd_label = "cidata"
 
-  ssh_username         = "packer"
-  ssh_private_key_file = "keys/packer_ed25519"
-  ssh_timeout          = "10m"
+  ssh_username         = var.ssh_username
+  ssh_private_key_file = var.ssh_key_file
+  ssh_timeout          = var.ssh_timeout
 
   shutdown_command = "sudo shutdown -P now"
 }

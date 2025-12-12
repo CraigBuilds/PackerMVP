@@ -27,10 +27,10 @@ jobs:
       - name: Initialize and validate Packer
         run: |
           packer init packer.pkr.hcl
-          packer validate packer.pkr.hcl
+          packer validate -var-file="variables.pkrvars.hcl" packer.pkr.hcl
 
       - name: Build base VM
-        run: packer build packer.pkr.hcl
+        run: packer build -var-file="variables.pkrvars.hcl" packer.pkr.hcl
 
       - name: Upload base VM artifact
         uses: actions/upload-artifact@v4
