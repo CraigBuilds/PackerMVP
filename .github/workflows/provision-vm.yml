@@ -32,6 +32,11 @@ on:
         required: false
         type: string
         default: ''
+      input_artifact_path:
+        description: 'Path to extract the input artifact to (required if input_artifact_name is provided)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build-vm:
@@ -46,7 +51,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.input_artifact_name }}
-          path: ${{ inputs.iso_url }}
+          path: ${{ inputs.input_artifact_path }}
 
       - name: Install dependencies
         run: |

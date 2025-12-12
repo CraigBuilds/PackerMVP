@@ -41,8 +41,10 @@ The repository uses a single parameterized Packer template (`Packer/templates/pa
 
 #### Build All Stages
 ```bash
-# Stage 1: Base
+# Initialize the template (only needed once)
 packer init Packer/templates/packer-vm.pkr.hcl
+
+# Stage 1: Base
 packer build \
   -var "iso_url=https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img" \
   -var "output_directory=build-output-base" \

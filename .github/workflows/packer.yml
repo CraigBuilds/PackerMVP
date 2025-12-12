@@ -27,6 +27,7 @@ jobs:
       build_name: "desktop"
       artifact_name: "desktop-vm"
       input_artifact_name: "base-vm"
+      input_artifact_path: "build-output-base"
 
   build-optimize:
     name: Build Optimized VM
@@ -40,6 +41,7 @@ jobs:
       build_name: "optimize"
       artifact_name: "optimized-vm"
       input_artifact_name: "desktop-vm"
+      input_artifact_path: "build-output-desktop"
 
   convert-qemu:
     name: Package QEMU VM
