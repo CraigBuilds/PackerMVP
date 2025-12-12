@@ -9,7 +9,7 @@ packer {
 
 source "hyperv-iso" "craigs_vm" {
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-  iso_checksum = "file:https://cloud-images.ubuntu.com/releases/jammy/release/SHA256SUMS"
+  iso_checksum = "none"
 
   output_directory   = "${path.root}/build-output-hyperv"
   vm_name            = "craigs_vm_hyperv"

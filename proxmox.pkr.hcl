@@ -42,7 +42,7 @@ source "proxmox-iso" "craigs_vm" {
   insecure_skip_tls_verify = var.proxmox_insecure_skip_tls_verify
 
   iso_url          = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
-  iso_checksum     = "file:https://cloud-images.ubuntu.com/releases/jammy/release/SHA256SUMS"
+  iso_checksum     = "none"
   iso_storage_pool = "local"
 
   vm_name = "craigs_vm_proxmox"

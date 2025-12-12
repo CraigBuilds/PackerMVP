@@ -42,12 +42,6 @@ packer build -var="proxmox_url=https://your-proxmox:8006/api2/json" \
   proxmox.pkr.hcl
 ```
 
-Build QEMU and VirtualBox together:
-```bash
-packer init packer.pkr.hcl
-packer build packer.pkr.hcl
-```
-
 ### GitHub Actions Workflow
 
 Trigger the workflow manually from the Actions tab to build all VMs in parallel. The workflow will:
