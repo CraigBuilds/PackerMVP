@@ -33,14 +33,7 @@ jobs:
       - run: packer build packer.pkr.hcl
 
       - name: Display VM size
-        run: |
-          if ls output/*.tar.gz 1> /dev/null 2>&1; then
-            echo "VM artifact size:"
-            ls -lh output/*.tar.gz
-            du -sh output/*.tar.gz
-          else
-            echo "No artifacts found"
-          fi
+        run: echo "$(stat -c %s output/craigs_vm.tar.gz)"
 
       - name: Release (tag latest)
         uses: ncipollo/release-action@v1
