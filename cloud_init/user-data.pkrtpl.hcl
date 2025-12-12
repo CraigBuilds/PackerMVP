@@ -3,7 +3,9 @@ users:
   - name: ${ssh_username}
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
-    # Default password is "${ssh_password}" - change after first login
+    # Password hash is for "packer" - the ssh_password variable is for documentation only
+    # Generate a new hash with: mkpasswd -m sha-512 yourpassword
+    # Change the password after first login!
     passwd: $6$2DrWh0Z00evMlYK0$3msMl6g4FzamSEJNdK7bClCGw4Gwu1BlEbTUgiKykl9..VIII6Mg5xJcMQ8HilE/h/NyT1AV4JJHlQRUj2BtG/
     lock_passwd: false
     ssh_authorized_keys:

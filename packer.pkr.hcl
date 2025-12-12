@@ -33,7 +33,7 @@ variable "ssh_username" {
 
 variable "ssh_password" {
   type        = string
-  description = "Local login password (change after first login)"
+  description = "Local login password (for documentation - actual hash in user-data template)"
   default     = "packer"
 }
 

@@ -11,7 +11,7 @@ vm_hostname  = "ubuntu-qemu"   # Hostname set inside the VM
 
 # User Account Settings
 ssh_username = "packer"                      # SSH username for provisioning
-ssh_password = "packer"                      # Local login password (change after first login)
+ssh_password = "packer"                      # Password for local login (hash in user-data.pkrtpl.hcl)
 ssh_key_file = "keys/packer_ed25519"        # SSH private key path for provisioning
 
 # Build Settings
