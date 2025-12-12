@@ -26,9 +26,6 @@ jobs:
       - name: Fix key permissions
         run: chmod 600 Packer/keys/packer_ed25519
 
-      - name: Initialize Packer template
-        run: packer init Packer/templates/packer-vm.pkr.hcl
-
       - name: Provision base VM
         uses: ./.github/actions/provision-vm
         with:

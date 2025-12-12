@@ -1,5 +1,5 @@
 name: 'Provision VM'
-description: 'Validates and builds a VM using Packer with the parameterized template'
+description: 'Initializes, validates and builds a VM using Packer with the parameterized template'
 inputs:
   input_image:
     description: 'URL or path to the input base image (cloud image or existing QCOW2)'
@@ -20,6 +20,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Initialize Packer template
+      shell: bash
+      run: packer init Packer/templates/packer-vm.pkr.hcl
+
     - name: Validate Packer template
       shell: bash
       run: |
