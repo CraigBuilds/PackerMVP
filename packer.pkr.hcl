@@ -14,7 +14,7 @@ source "qemu" "craigs_vm" {
   disk_image = true
   format     = "qcow2"
   
-  output_directory = "output"
+  output_directory = "${path.root}/output"
   vm_name          = "craigs_vm"
   headless         = true
 
