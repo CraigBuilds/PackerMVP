@@ -38,7 +38,7 @@ jobs:
           name: packer-output
           path: output/
 
-      - name: Release (tag: latest)
+      - name: Release (tag latest)
         uses: ncipollo/release-action@v1
         with:
           tag: latest
