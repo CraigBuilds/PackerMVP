@@ -27,6 +27,16 @@ on:
         description: 'Name for the output artifact'
         required: true
         type: string
+      input_artifact_name:
+        description: 'Name of the input artifact to download (optional, for chained builds)'
+        required: false
+        type: string
+        default: ''
+      input_artifact_path:
+        description: 'Path to extract the input artifact to (required if input_artifact_name is provided)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build-vm:
@@ -37,6 +47,13 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download input artifact
+        if: inputs.input_artifact_name != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.input_artifact_name }}
+          path: ${{ inputs.input_artifact_path }}
 
       - name: Install dependencies
         run: |
