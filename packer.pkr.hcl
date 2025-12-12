@@ -8,7 +8,6 @@ packer {
 }
 
 source "qemu" "ubuntu_cloud" {
-  # Ubuntu 22.04 cloud image (disk image)
   iso_url      = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
   iso_checksum = "none"
 
@@ -22,7 +21,6 @@ source "qemu" "ubuntu_cloud" {
   memory = 1024
   cpus   = 1
 
-  # cloud-init seed ISO
   cd_files = [
     "http/user-data",
     "http/meta-data",
@@ -39,4 +37,8 @@ source "qemu" "ubuntu_cloud" {
 build {
   name    = "ubuntu-cloud"
   sources = ["source.qemu.ubuntu_cloud"]
+
+  provisioner "shell" {
+    script = "provision/provision.sh"
+  }
 }
