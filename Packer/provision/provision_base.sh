@@ -28,7 +28,11 @@ if [ -f ~/.bash_history ]; then
   cat /dev/null > ~/.bash_history && history -c
 fi
 
-# zero empty space (Todo)
+# Zero out free space to improve compression
+echo "Zeroing free space for better compression..."
+sudo dd if=/dev/zero of=/EMPTY bs=1M || true
+sudo rm -f /EMPTY
+
 # Trim free space (helps qcow2 sparsity + compression)
 fstrim -av || true
 

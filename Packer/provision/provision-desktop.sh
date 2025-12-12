@@ -6,13 +6,10 @@ echo "Installing desktop environment..."
 # Update package lists
 sudo apt-get update
 
-# Install XFCE desktop environment (lightweight)
-# Feel free to change to ubuntu-desktop, kubuntu-desktop, etc.
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+# Install XFCE desktop environment (minimal)
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     xfce4 \
-    xfce4-goodies \
-    lightdm \
-    firefox
+    lightdm
 
 # Enable display manager
 sudo systemctl enable lightdm
@@ -43,6 +40,11 @@ sudo rm -rf /usr/share/man/*
 if [ -f /home/packer/.bash_history ]; then
   cat /dev/null > /home/packer/.bash_history && history -c
 fi
+
+# Zero out free space to improve compression
+echo "Zeroing free space for better compression..."
+sudo dd if=/dev/zero of=/EMPTY bs=1M || true
+sudo rm -f /EMPTY
 
 # Trim free space (helps qcow2 sparsity + compression)
 fstrim -av || true
