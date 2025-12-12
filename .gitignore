@@ -1,0 +1,16 @@
+# Packer output directory
+output/
+
+# Packer cache
+packer_cache/
+
+# Crash logs
+crash.log
+
+# SSH keys (if any are generated)
+*.pem
+*.key
+
+# Ignore any temporary or local files
+*.tmp
+*.log
