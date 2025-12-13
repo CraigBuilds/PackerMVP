@@ -33,12 +33,25 @@ variable "build_name" {
   default     = "vm-build"
 }
 
+variable "disk_compression" {
+  type        = bool
+  description = "Enable qcow2 internal compression during Packer compaction (may slow builds)"
+  default     = false
+}
+
 source "qemu" "vm" {
   iso_url      = var.input_image
   iso_checksum = "none"
 
   disk_image = true
   format     = "qcow2"
+
+  # Enable TRIM/UNMAP propagation (so fstrim can reclaim space in qcow2)
+  disk_discard       = "unmap"
+  disk_detect_zeroes = "unmap"
+
+  # qcow2 internal compression during Packer compaction (configurable)
+  disk_compression = var.disk_compression
 
   output_directory = var.output_directory
   vm_name          = var.output_name
