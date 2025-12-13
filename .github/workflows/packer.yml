@@ -209,6 +209,7 @@ jobs:
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
+          artifactErrorsFailBuild: true
           artifacts: "artifacts/*"
           body: |
             # VM Images Release
