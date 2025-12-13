@@ -21,7 +21,7 @@ fi
 
 # Zero out free space to improve compression
 echo "Zeroing free space for better compression..."
-sudo dd if=/dev/zero of=/EMPTY bs=1M || true
+sudo dd if=/dev/zero of=/EMPTY bs=1M oflag=direct 2>/dev/null || true
 sudo rm -f /EMPTY
 
 # Trim free space (helps qcow2 sparsity + compression)
