@@ -1,0 +1,52 @@
+name: 'Compress, Convert, and Package VM'
+description: 'Normalizes, converts a VM image to different formats (qcow2, vdi, vhdx), and packages it'
+inputs:
+  input_vm_path:
+    description: 'Path to the input VM file'
+    required: true
+  output_format:
+    description: 'Target format (qcow2, vdi, vhdx)'
+    required: true
+  output_name:
+    description: 'Name for the output file (without extension)'
+    required: true
+  output_directory:
+    description: 'Directory where converted VM will be stored'
+    required: true
+    default: 'dist'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install qemu-utils
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+    - name: Normalize, convert, then package
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        OUT_DIR="${{ inputs.output_directory }}"
+        NAME="${{ inputs.output_name }}"
+        FORMAT="${{ inputs.output_format }}"
+        IN="${{ inputs.input_vm_path }}"
+        NORM="${OUT_DIR}/${NAME}.normalized.qcow2"
+        OUT="${OUT_DIR}/${NAME}.${FORMAT}"
+        TAR="${OUT_DIR}/${NAME}.tar.gz"
+
+        mkdir -p "$OUT_DIR"
+
+        # Always normalize to a sparse + compressed qcow2 first
+        qemu-img convert -f qcow2 -O qcow2 -c -S 4k "$IN" "$NORM"
+
+        # Optionally convert to requested format
+        if [ "$FORMAT" = "qcow2" ]; then
+          mv -f "$NORM" "$OUT"
+        else
+          qemu-img convert -f qcow2 -O "$FORMAT" -S 4k "$NORM" "$OUT"
+          rm -f "$NORM"
+        fi
+
+        # Package
+        tar -czf "$TAR" -C "$OUT_DIR" "$(basename "$OUT")"
