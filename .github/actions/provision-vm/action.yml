@@ -16,6 +16,10 @@ inputs:
   build_name:
     description: 'Descriptive name for this build (displayed in Packer logs and build metadata, does not affect output files)'
     required: true
+  disk_compression:
+    description: 'Enable qcow2 internal compression during Packer compaction (may slow builds)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -33,6 +37,7 @@ runs:
           -var "output_name=${{ inputs.output_name }}" \
           -var "input_provision_script=${{ inputs.input_provision_script }}" \
           -var "build_name=${{ inputs.build_name }}" \
+          -var "disk_compression=${{ inputs.disk_compression }}" \
           Packer/templates/packer-vm.pkr.hcl
 
     - name: Build VM with Packer
@@ -44,4 +49,5 @@ runs:
           -var "output_name=${{ inputs.output_name }}" \
           -var "input_provision_script=${{ inputs.input_provision_script }}" \
           -var "build_name=${{ inputs.build_name }}" \
+          -var "disk_compression=${{ inputs.disk_compression }}" \
           Packer/templates/packer-vm.pkr.hcl
