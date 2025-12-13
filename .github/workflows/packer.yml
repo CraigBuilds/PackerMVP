@@ -76,7 +76,7 @@ jobs:
           path: vm
 
       - name: Convert to QEMU format
-        uses: ./.github/actions/convert-vm
+        uses: ./.github/actions/compress-convert-package
         with:
           input_vm_path: "vm/craigs_vm"
           output_format: "qcow2"
@@ -106,7 +106,7 @@ jobs:
           path: vm
 
       - name: Convert to VDI format
-        uses: ./.github/actions/convert-vm
+        uses: ./.github/actions/compress-convert-package
         with:
           input_vm_path: "vm/craigs_vm"
           output_format: "vdi"
@@ -136,7 +136,7 @@ jobs:
           path: vm
 
       - name: Convert to VHDX format
-        uses: ./.github/actions/convert-vm
+        uses: ./.github/actions/compress-convert-package
         with:
           input_vm_path: "vm/craigs_vm"
           output_format: "vhdx"
@@ -166,7 +166,7 @@ jobs:
           path: vm
 
       - name: Convert to Proxmox format
-        uses: ./.github/actions/convert-vm
+        uses: ./.github/actions/compress-convert-package
         with:
           input_vm_path: "vm/craigs_vm"
           output_format: "qcow2"
